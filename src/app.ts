@@ -86,6 +86,7 @@ export function createApp(): Application {
         imgSrc: ["'self'", 'data:', 'res.cloudinary.com', "https://*.razorpay.com"],
         connectSrc: ["'self'", "https://*.razorpay.com", "wss://*.razorpay.com"],
         frameSrc: ["'self'", "https://*.razorpay.com"],
+        formAction: ["'self'", "https://*.razorpay.com", "https://api.razorpay.com"],
       },
     },
   }));
