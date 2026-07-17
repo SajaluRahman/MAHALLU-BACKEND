@@ -42,7 +42,9 @@ const CemeterySchema = new mongoose_1.Schema({
     capacity: { type: Number, default: 0 },
     plots: [{
             plotNo: String, row: String, section: String,
+            status: { type: String, enum: ['available', 'booked', 'occupied'], default: 'available' },
             isOccupied: { type: Boolean, default: false },
+            bookedById: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Member' },
             deceasedId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Member' },
             occupiedAt: Date,
             gps: {

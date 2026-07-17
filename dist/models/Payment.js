@@ -39,7 +39,7 @@ const shared_types_1 = require("@mahallu/shared-types");
 const PaymentSchema = new mongoose_1.Schema({
     tenantId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Tenant', required: true },
     paymentNo: { type: String, required: true },
-    type: { type: String, enum: Object.values(shared_types_1.PaymentType), required: true },
+    type: { type: String, required: true },
     amount: { type: Number, required: true, min: 0 },
     paidById: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Member', required: true },
     paidForId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Member' },
@@ -59,6 +59,8 @@ PaymentSchema.index({ tenantId: 1, status: 1 });
 PaymentSchema.index({ tenantId: 1, type: 1 });
 PaymentSchema.index({ tenantId: 1, paidById: 1 });
 PaymentSchema.index({ tenantId: 1, createdAt: -1 });
+PaymentSchema.index({ tenantId: 1, status: 1, type: 1 });
+PaymentSchema.index({ tenantId: 1, type: 1, createdAt: -1 });
 PaymentSchema.index({ gatewayPaymentId: 1 }, { sparse: true });
 exports.Payment = mongoose_1.default.model('Payment', PaymentSchema);
 //# sourceMappingURL=Payment.js.map

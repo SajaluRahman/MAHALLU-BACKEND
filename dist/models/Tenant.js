@@ -63,6 +63,7 @@ const TenantSchema = new mongoose_1.Schema({
         timezone: { type: String, default: 'Asia/Kolkata' },
         dateFormat: { type: String, default: 'DD/MM/YYYY' },
         prayerTimeMethod: { type: String, default: '1' },
+        iqamahTimes: { type: Map, of: String },
     },
     isActive: { type: Boolean, default: true },
     isDeleted: { type: Boolean, default: false },
@@ -72,7 +73,6 @@ const TenantSchema = new mongoose_1.Schema({
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
 });
-TenantSchema.index({ mahalluCode: 1 }, { unique: true });
 TenantSchema.index({ email: 1 });
 exports.Tenant = mongoose_1.default.model('Tenant', TenantSchema);
 //# sourceMappingURL=Tenant.js.map

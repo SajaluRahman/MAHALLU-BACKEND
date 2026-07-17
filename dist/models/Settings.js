@@ -48,6 +48,14 @@ const SettingsSchema = new mongoose_1.Schema({
     madrasa: { feeReminderDays: { type: Number, default: 5 }, attendanceNotification: { type: Boolean, default: true }, autoReportCard: { type: Boolean, default: true } },
     integrations: { razorpayEnabled: { type: Boolean, default: false }, whatsappApiKey: String, googleMapsKey: String },
     theme: { primaryColor: { type: String, default: '#059669' }, mode: { type: String, enum: ['light', 'dark', 'system'], default: 'system' }, language: { type: String, default: 'ml' } },
+    iqamahTimes: {
+        Fajr: { type: String, default: '05:30' },
+        Dhuhr: { type: String, default: '13:30' },
+        Asr: { type: String, default: '16:30' },
+        Maghrib: { type: String, default: '18:45' },
+        Isha: { type: String, default: '20:00' },
+        Jumuah: { type: String, default: '13:30' },
+    }
 }, { timestamps: true });
 exports.Settings = mongoose_1.default.model('Settings', SettingsSchema);
 //# sourceMappingURL=Settings.js.map

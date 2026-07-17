@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MemberController = void 0;
 const Member_1 = require("../models/Member");
+const Family_1 = require("../models/Family");
 const errorHandler_1 = require("../middleware/errorHandler");
 const shared_config_1 = require("@mahallu/shared-config");
 const qrcode_1 = __importDefault(require("qrcode"));
@@ -80,6 +81,10 @@ class MemberController {
                 memberId,
                 qrCode,
             });
+            // Sync with Family if familyId is provided
+            if (req.body.familyId) {
+                await Family_1.Family.findOneAndUpdate({ _id: req.body.familyId, tenantId }, { $push: { members: { memberId: member._id, relationship: req.body.relationship || 'Member', isHead: false } } });
+            }
             res.status(201).json({ success: true, message: 'Member created', data: member });
         }
         catch (error) {
@@ -88,9 +93,27 @@ class MemberController {
     }
     static async update(req, res, next) {
         try {
-            const member = await Member_1.Member.findOneAndUpdate({ _id: req.params.id, tenantId: req.user.tenantId }, { $set: req.body }, { new: true, runValidators: true });
-            if (!member)
+            const oldMember = await Member_1.Member.findOne({ _id: req.params.id, tenantId: req.user.tenantId });
+            if (!oldMember)
                 throw new errorHandler_1.AppError('Member not found', 404);
+            const oldFamilyId = oldMember.familyId?.toString();
+            const newFamilyId = req.body.familyId?.toString();
+            const member = await Member_1.Member.findOneAndUpdate({ _id: req.params.id, tenantId: req.user.tenantId }, { $set: req.body }, { new: true, runValidators: true });
+            // Handle Family changes
+            if (oldFamilyId !== newFamilyId) {
+                if (oldFamilyId) {
+                    // Remove from old family
+                    await Family_1.Family.findOneAndUpdate({ _id: oldFamilyId, tenantId: req.user.tenantId }, { $pull: { members: { memberId: member?._id } } });
+                }
+                if (newFamilyId) {
+                    // Add to new family
+                    await Family_1.Family.findOneAndUpdate({ _id: newFamilyId, tenantId: req.user.tenantId }, { $push: { members: { memberId: member?._id, relationship: req.body.relationship || 'Member', isHead: false } } });
+                }
+            }
+            else if (newFamilyId && req.body.relationship !== undefined) {
+                // Just update relationship if family didn't change
+                await Family_1.Family.findOneAndUpdate({ _id: newFamilyId, tenantId: req.user.tenantId, 'members.memberId': member?._id }, { $set: { 'members.$.relationship': req.body.relationship } });
+            }
             res.status(200).json({ success: true, message: 'Member updated', data: member });
         }
         catch (error) {

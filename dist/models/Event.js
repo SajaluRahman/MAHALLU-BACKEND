@@ -48,6 +48,11 @@ const EventSchema = new mongoose_1.Schema({
     isFeatured: { type: Boolean, default: false },
     isPaid: { type: Boolean, default: false }, fee: Number,
     banner: { url: String, publicId: String },
+    idCardBgImage: { url: String, publicId: String },
+    committeeMembers: [{
+            memberId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Member', required: true },
+            role: { type: String, required: true },
+        }],
 }, { timestamps: true });
 EventSchema.index({ tenantId: 1, date: -1 });
 exports.Event = mongoose_1.default.model('Event', EventSchema);

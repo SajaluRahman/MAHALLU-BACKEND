@@ -9,5 +9,6 @@ export declare class AuthController {
     static verify2FA(req: AuthRequest, res: Response, next: NextFunction): Promise<void>;
     static changePassword(req: AuthRequest, res: Response, next: NextFunction): Promise<void>;
     static updateFCMToken(req: AuthRequest, res: Response, next: NextFunction): Promise<void>;
+    static adminResetPassword(req: AuthRequest, res: Response, next: NextFunction): Promise<void>;
 }
 //# sourceMappingURL=auth.controller.d.ts.map

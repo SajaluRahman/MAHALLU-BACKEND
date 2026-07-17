@@ -105,6 +105,40 @@ class AuthController {
             next(error);
         }
     }
+    static async adminResetPassword(req, res, next) {
+        try {
+            const { memberId } = req.params;
+            const { newPassword, loginId } = req.body;
+            const tenantId = req.user?.tenantId;
+            if (!newPassword && !loginId) {
+                throw new errorHandler_1.AppError('Please provide a new password or a new login ID', 400);
+            }
+            if (newPassword && newPassword.length < 6) {
+                throw new errorHandler_1.AppError('Password must be at least 6 characters long', 400);
+            }
+            const userToReset = await User_1.User.findOne({ tenantId, memberId });
+            if (!userToReset) {
+                throw new errorHandler_1.AppError('User account not found for this member', 404);
+            }
+            if (newPassword) {
+                // The pre-save hook in User model automatically hashes the password
+                userToReset.passwordHash = newPassword;
+            }
+            if (loginId) {
+                if (loginId.includes('@')) {
+                    userToReset.email = loginId.toLowerCase();
+                }
+                else {
+                    userToReset.phone = loginId;
+                }
+            }
+            await userToReset.save();
+            res.status(200).json({ success: true, message: 'Security credentials updated successfully' });
+        }
+        catch (error) {
+            next(error);
+        }
+    }
 }
 exports.AuthController = AuthController;
 //# sourceMappingURL=auth.controller.js.map

@@ -11031,3 +11031,42 @@ Use mongoose.model(name, schema)
 2026-07-17 14:09:23 [warn]: MongoDB disconnected. Attempting to reconnect...
 2026-07-17 14:12:31 [warn]: MongoDB disconnected. Attempting to reconnect...
 2026-07-17 14:25:08 [warn]: MongoDB disconnected. Attempting to reconnect...
+2026-07-17 16:14:35 [info]: ✅ MongoDB connected: ac-sbq0ezg-shard-00-02.s6lu4m7.mongodb.net
+2026-07-17 16:14:35 [error]: AggregateError
+    at internalConnectMultiple (node:net:1194:18)
+    at afterConnectMultiple (node:net:1784:7)
+2026-07-17 16:14:36 [warn]: Redis reconnecting...
+2026-07-17 16:14:36 [error]: AggregateError
+    at internalConnectMultiple (node:net:1194:18)
+    at afterConnectMultiple (node:net:1784:7)
+2026-07-17 16:14:36 [warn]: Redis reconnecting...
+2026-07-17 16:14:36 [error]: AggregateError
+    at internalConnectMultiple (node:net:1194:18)
+    at afterConnectMultiple (node:net:1784:7)
+2026-07-17 16:14:37 [warn]: Redis reconnecting...
+2026-07-17 16:14:37 [error]: AggregateError
+    at internalConnectMultiple (node:net:1194:18)
+    at afterConnectMultiple (node:net:1784:7)
+2026-07-17 16:14:37 [warn]: AggregateError
+    at internalConnectMultiple (node:net:1194:18)
+    at afterConnectMultiple (node:net:1784:7)
+2026-07-17 16:14:37 [info]: ✅ Cron jobs initialized
+2026-07-17 16:14:37 [info]: 🚀 Mahallu ERP Backend running on port 5000
+2026-07-17 16:14:37 [info]: 📡 Environment: development
+2026-07-17 16:14:37 [info]: 🌐 API Base: http://localhost:5000/api/v1
+2026-07-17 16:15:04 [info]: ✅ MongoDB connected: ac-sbq0ezg-shard-00-02.s6lu4m7.mongodb.net
+2026-07-17 16:15:04 [error]: AggregateError
+    at internalConnectMultiple (node:net:1194:18)
+    at afterConnectMultiple (node:net:1784:7)
+2026-07-17 16:15:04 [warn]: Redis reconnecting...
+2026-07-17 16:15:04 [error]: AggregateError
+    at internalConnectMultiple (node:net:1194:18)
+    at afterConnectMultiple (node:net:1784:7)
+2026-07-17 16:15:05 [warn]: Redis reconnecting...
+2026-07-17 16:15:05 [error]: AggregateError
+    at internalConnectMultiple (node:net:1194:18)
+    at afterConnectMultiple (node:net:1784:7)
+2026-07-17 16:15:05 [warn]: Redis reconnecting...
+2026-07-17 16:15:05 [error]: AggregateError
+    at internalConnectMultiple (node:net:1194:18)
+    at afterConnectMultiple (node:net:1784:7)

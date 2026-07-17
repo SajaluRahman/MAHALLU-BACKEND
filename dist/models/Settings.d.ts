@@ -34,6 +34,14 @@ export interface SettingsDocument extends Document {
         mode: 'light' | 'dark' | 'system';
         language: string;
     };
+    iqamahTimes?: {
+        Fajr: string;
+        Dhuhr: string;
+        Asr: string;
+        Maghrib: string;
+        Isha: string;
+        Jumuah: string;
+    };
 }
 export declare const Settings: mongoose.Model<SettingsDocument, {}, {}, {}, mongoose.Document<unknown, {}, SettingsDocument, {}, {}> & SettingsDocument & Required<{
     _id: mongoose.Types.ObjectId;

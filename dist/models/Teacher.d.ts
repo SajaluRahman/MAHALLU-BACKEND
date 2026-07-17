@@ -23,6 +23,13 @@ export interface TeacherDocument extends Document {
         ifscCode: string;
         accountType: string;
     };
+    assignedStudents?: mongoose.Types.ObjectId[];
+    schedule?: Array<{
+        day: string;
+        startTime: string;
+        endTime: string;
+        subject: string;
+    }>;
 }
 export declare const Teacher: mongoose.Model<TeacherDocument, {}, {}, {}, mongoose.Document<unknown, {}, TeacherDocument, {}, {}> & TeacherDocument & Required<{
     _id: mongoose.Types.ObjectId;

@@ -1,6 +1,39 @@
 "use strict";
 // Route scaffolds — all fully wired with authenticate + RBAC stubs
 // Each will be fully implemented in Phase 1 continuation
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -76,6 +109,38 @@ router.delete('/:id', (0, auth_1.authorize)(shared_config_1.PERMISSIONS.FAMILY_D
     try {
         await Family_1.Family.findOneAndUpdate({ _id: req.params.id, tenantId: req.user.tenantId }, { isDeleted: true, deletedAt: new Date() });
         res.json({ success: true, message: 'Family deleted' });
+    }
+    catch (e) {
+        next(e);
+    }
+});
+router.post('/:id/remind-recurring', (0, auth_1.authorize)(shared_config_1.PERMISSIONS.FAMILY_VIEW), async (req, res, next) => {
+    try {
+        const family = await Family_1.Family.findOne({ _id: req.params.id, tenantId: req.user.tenantId });
+        if (!family)
+            throw new errorHandler_1.AppError('Family not found', 404);
+        if (!family.headMemberId) {
+            throw new errorHandler_1.AppError('Family has no head member assigned to receive the alert', 400);
+        }
+        if (!family.outstandingBalance || family.outstandingBalance <= 0) {
+            throw new errorHandler_1.AppError('Family has no outstanding balance', 400);
+        }
+        const { User } = await Promise.resolve().then(() => __importStar(require('../models/User')));
+        const headUser = await User.findOne({ memberId: family.headMemberId, tenantId: family.tenantId });
+        if (!headUser) {
+            throw new errorHandler_1.AppError('Family head does not have a user account to receive alerts', 400);
+        }
+        const { Notification } = await Promise.resolve().then(() => __importStar(require('../models/Notification')));
+        const { NotificationChannel } = await Promise.resolve().then(() => __importStar(require('@mahallu/shared-types')));
+        await Notification.create({
+            tenantId: family.tenantId,
+            channel: NotificationChannel.IN_APP,
+            recipientId: headUser._id,
+            title: 'Reminder: Recurring Due Pending',
+            body: `Reminder: Your family has an outstanding balance of ${family.outstandingBalance}. Please clear your dues at your earliest convenience.`,
+            status: 'pending',
+        });
+        res.json({ success: true, message: 'Reminder sent successfully' });
     }
     catch (e) {
         next(e);

@@ -8,7 +8,9 @@ export interface CemeteryDocument extends Document {
         plotNo: string;
         row: string;
         section: string;
+        status?: 'available' | 'booked' | 'occupied';
         isOccupied: boolean;
+        bookedById?: mongoose.Types.ObjectId;
         deceasedId?: mongoose.Types.ObjectId;
         occupiedAt?: Date;
         gps?: {

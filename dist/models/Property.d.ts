@@ -8,6 +8,8 @@ export interface PropertyDocument extends Document {
     address: Record<string, unknown>;
     area?: number;
     rentAmount?: number;
+    quantity?: number;
+    availableQuantity?: number;
     status: 'vacant' | 'occupied' | 'maintenance';
     documents: Array<{
         url: string;

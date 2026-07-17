@@ -106,6 +106,33 @@ exports.receiptRoutes = (() => {
     catch (e) {
         next(e);
     } });
+    r.post('/manual', async (req, res, next) => {
+        try {
+            const { amount, type, paidById, paidForId, description, gateway = 'cash' } = req.body;
+            const tenantId = req.user.tenantId;
+            const { Payment } = await Promise.resolve().then(() => __importStar(require('../models/Payment')));
+            const { processPaymentDues } = await Promise.resolve().then(() => __importStar(require('./payment.routes')));
+            const count = await Payment.countDocuments({ tenantId });
+            const paymentNo = `PAY-${new Date().getFullYear()}-${String(count + 1).padStart(6, '0')}`;
+            const payment = await Payment.create({
+                tenantId, paymentNo, type, amount,
+                paidById,
+                paidForId: paidForId || paidById,
+                gateway: gateway.toLowerCase(),
+                status: 'success', description,
+            });
+            const receiptCount = await Receipt_1.Receipt.countDocuments({ tenantId });
+            const receiptNo = `RCP-${new Date().getFullYear()}-${String(receiptCount + 1).padStart(6, '0')}`;
+            const receipt = await Receipt_1.Receipt.create({ tenantId, receiptNo, paymentId: payment._id });
+            await Payment.findByIdAndUpdate(payment._id, { receiptId: receipt._id });
+            // Process family balance and recurring dues
+            await processPaymentDues(payment);
+            res.status(201).json({ success: true, data: { payment, receipt } });
+        }
+        catch (e) {
+            next(e);
+        }
+    });
     return r;
 })();
 // --- Audit Routes ---

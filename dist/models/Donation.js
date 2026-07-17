@@ -38,6 +38,7 @@ const mongoose_1 = __importStar(require("mongoose"));
 const DonationSchema = new mongoose_1.Schema({
     tenantId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Tenant', required: true },
     donorId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Member' },
+    familyId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Family' },
     donorName: String,
     amount: { type: Number, required: true, min: 1 },
     campaign: String,
@@ -45,9 +46,12 @@ const DonationSchema = new mongoose_1.Schema({
     paymentId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Payment' },
     isAnonymous: { type: Boolean, default: false },
     receiptId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Receipt' },
+    status: { type: String, enum: ['pending', 'paid', 'partial'], default: 'paid' },
+    dueDate: Date,
 }, { timestamps: true });
 DonationSchema.index({ tenantId: 1, donorId: 1 });
 DonationSchema.index({ tenantId: 1, campaign: 1 });
 DonationSchema.index({ tenantId: 1, createdAt: -1 });
+DonationSchema.index({ tenantId: 1, status: 1, createdAt: -1 });
 exports.Donation = mongoose_1.default.model('Donation', DonationSchema);
 //# sourceMappingURL=Donation.js.map

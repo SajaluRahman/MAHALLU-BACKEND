@@ -43,6 +43,8 @@ const PropertySchema = new mongoose_1.Schema({
     name: { type: String, required: true },
     address: { type: mongoose_1.Schema.Types.Mixed },
     area: Number, rentAmount: Number,
+    quantity: { type: Number, default: 1 },
+    availableQuantity: { type: Number, default: 1 },
     status: { type: String, enum: ['vacant', 'occupied', 'maintenance'], default: 'vacant' },
     documents: [{ url: String, fileName: String, fileType: String }],
     currentLeaseId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Lease' },

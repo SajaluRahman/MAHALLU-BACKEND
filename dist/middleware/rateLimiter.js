@@ -8,7 +8,7 @@ const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const logger_1 = require("../config/logger");
 exports.globalRateLimiter = (0, express_rate_limit_1.default)({
     windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000'), // 15 min
-    max: parseInt(process.env.RATE_LIMIT_MAX || '100'),
+    max: parseInt(process.env.RATE_LIMIT_MAX || '5000'), // Increased to 5000 for local dev hot-reloads
     standardHeaders: true,
     legacyHeaders: false,
     handler: (_req, res) => {
@@ -21,7 +21,7 @@ exports.globalRateLimiter = (0, express_rate_limit_1.default)({
 });
 exports.authRateLimiter = (0, express_rate_limit_1.default)({
     windowMs: 15 * 60 * 1000, // 15 min
-    max: 10,
+    max: 1000, // Increased to 1000 for dev
     skipSuccessfulRequests: true,
     handler: (_req, res) => {
         res.status(429).json({

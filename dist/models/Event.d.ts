@@ -20,6 +20,14 @@ export interface EventDocument extends Document {
         url: string;
         publicId?: string;
     };
+    idCardBgImage?: {
+        url: string;
+        publicId?: string;
+    };
+    committeeMembers: Array<{
+        memberId: mongoose.Types.ObjectId;
+        role: string;
+    }>;
 }
 export declare const Event: mongoose.Model<EventDocument, {}, {}, {}, mongoose.Document<unknown, {}, EventDocument, {}, {}> & EventDocument & Required<{
     _id: mongoose.Types.ObjectId;

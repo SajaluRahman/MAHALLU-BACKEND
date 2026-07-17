@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.approveRegistration = exports.rejectRegistration = exports.getPendingRegistrations = exports.submitRegistration = void 0;
+exports.approveRegistration = exports.rejectRegistration = exports.getPendingRegistrations = exports.getFamiliesForRegistration = exports.submitRegistration = void 0;
 const RegistrationRequest_1 = require("../models/RegistrationRequest");
 const Tenant_1 = require("../models/Tenant");
 const User_1 = require("../models/User");
@@ -40,6 +40,30 @@ const submitRegistration = async (req, res) => {
     }
 };
 exports.submitRegistration = submitRegistration;
+const getFamiliesForRegistration = async (req, res) => {
+    try {
+        const { mahalluCode } = req.params;
+        if (!mahalluCode)
+            return res.status(400).json({ success: false, message: 'Mahallu code is required' });
+        const tenant = await Tenant_1.Tenant.findOne({ mahalluCode: mahalluCode.toUpperCase() });
+        if (!tenant)
+            return res.status(404).json({ success: false, message: 'Invalid Mahallu Code' });
+        const families = await Family_1.Family.find({ tenantId: tenant._id, isDeleted: false })
+            .populate('headMemberId', 'name')
+            .lean();
+        const formatted = families.map(f => ({
+            _id: f._id,
+            familyCode: f.familyCode,
+            headName: f.headMemberId?.name || 'Unknown',
+        }));
+        res.status(200).json({ success: true, data: formatted });
+    }
+    catch (error) {
+        logger_1.logger.error('Error fetching families for registration:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+exports.getFamiliesForRegistration = getFamiliesForRegistration;
 // ---------------------------------------------------------
 // PROTECTED ENDPOINTS (Called by Admin Dashboard)
 // ---------------------------------------------------------
@@ -103,7 +127,9 @@ const approveRegistration = async (req, res) => {
         }
         const { type, payload } = request;
         const generatedPassword = generatePassword();
-        let email = payload.email || `${payload.phone}@mahallu.local`; // Fallback email if none provided
+        // We must generate a unique fallback email in case a family shares a phone number
+        const uniqueSuffix = Math.random().toString(36).substring(2, 8);
+        let email = payload.email || `${payload.phone}_${uniqueSuffix}@mahallu.local`;
         // 1. Create Base Member Profile for ALL types
         const member = await Member_1.Member.create({
             tenantId,
@@ -121,11 +147,27 @@ const approveRegistration = async (req, res) => {
         // 2. Handle Specific Role Logic
         if (type === RegistrationRequest_1.RegistrationType.MEMBER) {
             role = shared_types_1.UserRole.PARENT;
+            const familyMembersData = [{ memberId: member._id, relationship: 'Head', isHead: true }];
+            if (payload.familyMembers && Array.isArray(payload.familyMembers)) {
+                for (const fm of payload.familyMembers) {
+                    if (fm.name && fm.relationship) {
+                        const dependent = await Member_1.Member.create({
+                            tenantId,
+                            memberId: generateId('MHL'),
+                            name: fm.name,
+                            phone: payload.phone, // Dependents use the head's phone number if not provided
+                            gender: fm.gender || shared_types_1.Gender.MALE,
+                            status: shared_types_1.MemberStatus.ACTIVE,
+                        });
+                        familyMembersData.push({ memberId: dependent._id, relationship: fm.relationship, isHead: false });
+                    }
+                }
+            }
             const family = await Family_1.Family.create({
                 tenantId,
                 familyCode: generateId('FAM'),
                 headMemberId: member._id,
-                members: [{ memberId: member._id, relationship: 'Head', isHead: true }],
+                members: familyMembersData,
                 address: {
                     line1: payload.addressLine1 || 'N/A',
                     city: payload.city || 'Unknown',
@@ -136,11 +178,24 @@ const approveRegistration = async (req, res) => {
                 },
                 outstandingBalance: 0,
             });
-            member.familyId = family._id;
-            await member.save();
+            await Member_1.Member.updateMany({ _id: { $in: familyMembersData.map(m => m.memberId) } }, { $set: { familyId: family._id } });
         }
         else if (type === RegistrationRequest_1.RegistrationType.STUDENT) {
             role = shared_types_1.UserRole.STUDENT;
+            let guardianId = member._id;
+            if (payload.familyId) {
+                const family = await Family_1.Family.findById(payload.familyId);
+                if (family) {
+                    guardianId = family.headMemberId;
+                    member.familyId = family._id;
+                    family.members.push({
+                        memberId: member._id,
+                        relationship: 'Child/Dependent',
+                        isHead: false
+                    });
+                    await family.save();
+                }
+            }
             // Dummy class & madrasa IDs if none passed. Ideally selected during registration.
             await Student_1.Student.create({
                 tenantId,
@@ -149,7 +204,7 @@ const approveRegistration = async (req, res) => {
                 admissionDate: new Date(),
                 madrasaId: payload.madrasaId || member._id, // placeholder
                 classId: payload.classId || member._id, // placeholder
-                guardianId: member._id, // Self or parent (simplified)
+                guardianId: guardianId, // Self or parent
                 status: 'active',
                 feePaid: 0,
                 feeBalance: 0,
@@ -171,11 +226,16 @@ const approveRegistration = async (req, res) => {
             });
         }
         // 3. Create the User Account
+        let userPhone = payload.phone;
+        const existingUser = await User_1.User.findOne({ tenantId, phone: userPhone });
+        if (existingUser) {
+            userPhone = `${userPhone}_${uniqueSuffix}`;
+        }
         const user = await User_1.User.create({
             tenantId,
             name: payload.name,
             email: email.toLowerCase(),
-            phone: payload.phone,
+            phone: userPhone,
             role: role,
             passwordHash: generatedPassword,
             memberId: member._id,

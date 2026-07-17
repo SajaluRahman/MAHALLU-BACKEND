@@ -48,6 +48,8 @@ const TeacherSchema = new mongoose_1.Schema({
     status: { type: String, enum: ['active', 'resigned', 'terminated'], default: 'active' },
     documents: [{ url: String, publicId: String, fileName: String, fileType: String, size: Number }],
     bankAccount: { bankName: String, accountNo: String, ifscCode: String, accountType: String },
+    assignedStudents: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'Student' }],
+    schedule: [{ day: String, startTime: String, endTime: String, subject: String }],
 }, { timestamps: true });
 TeacherSchema.index({ tenantId: 1, employeeId: 1 }, { unique: true });
 TeacherSchema.index({ tenantId: 1, madrasaId: 1 });
