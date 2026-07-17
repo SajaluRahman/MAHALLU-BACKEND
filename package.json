@@ -12,8 +12,8 @@
     "lint": "eslint src --ext .ts"
   },
   "dependencies": {
-    "@mahallu/shared-config": "*",
-    "@mahallu/shared-types": "*",
+    "@mahallu/shared-config": "file:./packages/shared-config",
+    "@mahallu/shared-types": "file:./packages/shared-types",
     "axios": "^1.7.2",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.2.0",
