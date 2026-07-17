@@ -104,52 +104,65 @@ router.get('/checkout', async (req, res) => {
         <div class="sub">Do not close this page or press back.</div>
 
         <script>
-          const options = {
-            key: "${key_id}",
-            amount: "${amount}",
-            currency: "INR",
-            name: "Mahallu ERP",
-            description: "Dues & Donations Payment",
-            order_id: "${orderId}",
-            handler: async function (response) {
-              try {
-                // Verify the payment signature on the backend
-                const verifyRes = await fetch('/api/v1/payments/verify', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    razorpay_order_id: response.razorpay_order_id,
-                    razorpay_payment_id: response.razorpay_payment_id,
-                    razorpay_signature: response.razorpay_signature,
-                    paymentId: "${paymentId}"
-                  })
-                });
-                const verifyData = await verifyRes.json();
-                if (verifyData.success) {
-                  window.location.href = "mahallu://payments?status=success&paymentId=${paymentId}";
-                } else {
-                  window.location.href = "mahallu://payments?status=failure&error=" + encodeURIComponent(verifyData.message || 'Verification failed');
+          window.onload = function() {
+            try {
+              if (typeof Razorpay === 'undefined') {
+                alert('Razorpay SDK failed to load. Please check your internet connection or reload the page.');
+                window.location.href = "mahallu://payments?status=failure&error=SDK+failed+to+load";
+                return;
+              }
+
+              const options = {
+                key: "${key_id}",
+                amount: ${amount},
+                currency: "INR",
+                name: "Mahallu ERP",
+                description: "Dues & Donations Payment",
+                order_id: "${orderId}",
+                handler: async function (response) {
+                  try {
+                    // Verify the payment signature on the backend
+                    const verifyRes = await fetch('/api/v1/payments/verify', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        razorpay_order_id: response.razorpay_order_id,
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_signature: response.razorpay_signature,
+                        paymentId: "${paymentId}"
+                      })
+                    });
+                    const verifyData = await verifyRes.json();
+                    if (verifyData.success) {
+                      window.location.href = "mahallu://payments?status=success&paymentId=${paymentId}";
+                    } else {
+                      window.location.href = "mahallu://payments?status=failure&error=" + encodeURIComponent(verifyData.message || 'Verification failed');
+                    }
+                  } catch (e) {
+                    window.location.href = "mahallu://payments?status=failure&error=" + encodeURIComponent(e.message);
+                  }
+                },
+                prefill: {
+                  name: "${name || ''}",
+                  email: "${email || ''}",
+                  contact: "${phone || ''}"
+                },
+                theme: {
+                  color: "#0B4A42"
+                },
+                modal: {
+                  ondismiss: function() {
+                    window.location.href = "mahallu://payments?status=cancelled";
+                  }
                 }
-              } catch (e) {
-                window.location.href = "mahallu://payments?status=failure&error=" + encodeURIComponent(e.message);
-              }
-            },
-            prefill: {
-              name: "${name || ''}",
-              email: "${email || ''}",
-              contact: "${phone || ''}"
-            },
-            theme: {
-              color: "#0B4A42"
-            },
-            modal: {
-              ondismiss: function() {
-                window.location.href = "mahallu://payments?status=cancelled";
-              }
+              };
+              const rzp = new Razorpay(options);
+              rzp.open();
+            } catch (err) {
+              alert('Initialization Error: ' + err.message);
+              window.location.href = "mahallu://payments?status=failure&error=" + encodeURIComponent(err.message);
             }
           };
-          const rzp = new Razorpay(options);
-          rzp.open();
         </script>
       </body>
     </html>
