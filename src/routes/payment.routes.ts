@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { authenticate, authorize } from '../middleware/auth';
-import { PERMISSIONS } from '@mahallu/shared-config';
+import { PERMISSIONS, ROLE_PERMISSIONS } from '@mahallu/shared-config';
 import { Payment } from '../models/Payment';
 import { Receipt } from '../models/Receipt';
 import { AppError } from '../middleware/errorHandler';
@@ -194,8 +194,16 @@ router.post('/verify', async (req, res, next) => {
 // Authenticated Routes
 router.use(authenticate);
 
-router.post('/create-order', authorize(PERMISSIONS.PAYMENT_CREATE), async (req: AuthRequest, res, next) => {
+router.post('/create-order', async (req: AuthRequest, res, next) => {
   try {
+    const userPermissions = ROLE_PERMISSIONS[req.user!.role] || [];
+    const hasAccess = userPermissions.includes(PERMISSIONS.PAYMENT_CREATE) || 
+                      userPermissions.includes(PERMISSIONS.PAYMENT_SELF);
+
+    if (!hasAccess) {
+      throw new AppError('Insufficient permissions', 403);
+    }
+
     const { amount, type, paidForId, description, gateway = 'razorpay' } = req.body;
     const tenantId = req.user!.tenantId;
 
