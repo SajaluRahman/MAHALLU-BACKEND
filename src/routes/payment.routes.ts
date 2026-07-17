@@ -10,11 +10,10 @@ import crypto from 'crypto';
 import { PaymentStatus } from '@mahallu/shared-types';
 
 const router = Router();
-router.use(authenticate);
 
 const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_dummy',
-  key_secret: process.env.RAZORPAY_KEY_SECRET || 'dummy_secret',
+  key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_TEgC71zlAgHt9w',
+  key_secret: process.env.RAZORPAY_KEY_SECRET || 'Q7eUlKyyGO7dV2JRpyU1N0sP',
 });
 
 // Helper to decrement family balance and mark pending donations as paid
@@ -42,10 +41,6 @@ export async function processPaymentDues(payment: any) {
     if (remainingAmount >= donation.amount) {
       await Donation.findByIdAndUpdate(donation._id, { status: 'paid', paymentId: payment._id });
       remainingAmount -= donation.amount;
-    } else {
-      // Partial payment logic (simplified: just mark it paid or leave it pending with a partial flag)
-      // For now, if they pay partially, we won't mark this specific due as completely paid unless it covers it.
-      // Or we can just decrement outstanding balance and let the next payment cover it.
     }
   }
 
@@ -55,7 +50,150 @@ export async function processPaymentDues(payment: any) {
   });
 }
 
-// Create order / Record payment
+// Public Checkout UI Page for Mobile Browser
+router.get('/checkout', async (req, res) => {
+  const { orderId, paymentId, amount, name, email, phone } = req.query;
+  const key_id = process.env.RAZORPAY_KEY_ID || 'rzp_test_TEgC71zlAgHt9w';
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>Mahallu Payment Checkout</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+        <style>
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #FBF8F2;
+            color: #0B4A42;
+          }
+          .loader {
+            border: 4px solid #E2E8F0;
+            border-top: 4px solid #C9972E;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+          }
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+          .title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+          }
+          .sub {
+            font-size: 14px;
+            color: #64748B;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="loader"></div>
+        <div class="title">Initiating Secure Payment...</div>
+        <div class="sub">Do not close this page or press back.</div>
+
+        <script>
+          const options = {
+            key: "${key_id}",
+            amount: "${amount}",
+            currency: "INR",
+            name: "Mahallu ERP",
+            description: "Dues & Donations Payment",
+            order_id: "${orderId}",
+            handler: async function (response) {
+              try {
+                // Verify the payment signature on the backend
+                const verifyRes = await fetch('/api/v1/payments/verify', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_signature: response.razorpay_signature,
+                    paymentId: "${paymentId}"
+                  })
+                });
+                const verifyData = await verifyRes.json();
+                if (verifyData.success) {
+                  window.location.href = "mahallu://payments?status=success&paymentId=${paymentId}";
+                } else {
+                  window.location.href = "mahallu://payments?status=failure&error=" + encodeURIComponent(verifyData.message || 'Verification failed');
+                }
+              } catch (e) {
+                window.location.href = "mahallu://payments?status=failure&error=" + encodeURIComponent(e.message);
+              }
+            },
+            prefill: {
+              name: "${name || ''}",
+              email: "${email || ''}",
+              contact: "${phone || ''}"
+            },
+            theme: {
+              color: "#0B4A42"
+            },
+            modal: {
+              ondismiss: function() {
+                window.location.href = "mahallu://payments?status=cancelled";
+              }
+            }
+          };
+          const rzp = new Razorpay(options);
+          rzp.open();
+        </script>
+      </body>
+    </html>
+  `;
+  res.send(html);
+});
+
+// Verify payment signature
+router.post('/verify', async (req, res, next) => {
+  try {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, paymentId } = req.body;
+    const body = razorpay_order_id + '|' + razorpay_payment_id;
+    const expectedSignature = crypto
+      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET || 'Q7eUlKyyGO7dV2JRpyU1N0sP')
+      .update(body)
+      .digest('hex');
+
+    if (expectedSignature !== razorpay_signature) {
+      throw new AppError('Invalid payment signature', 400);
+    }
+
+    const payment = await Payment.findByIdAndUpdate(paymentId, {
+      status: PaymentStatus.SUCCESS,
+      gatewayPaymentId: razorpay_payment_id,
+      gatewaySignature: razorpay_signature,
+    }, { new: true });
+
+    // Auto-generate receipt
+    if (payment) {
+      const count = await Receipt.countDocuments({ tenantId: payment.tenantId });
+      const receiptNo = `RCP-${new Date().getFullYear()}-${String(count + 1).padStart(6, '0')}`;
+      const receipt = await Receipt.create({ tenantId: payment.tenantId, receiptNo, paymentId: payment._id });
+      await Payment.findByIdAndUpdate(payment._id, { receiptId: receipt._id });
+      
+      await processPaymentDues(payment);
+    }
+
+    res.json({ success: true, message: 'Payment verified', data: payment });
+  } catch (e) { next(e); }
+});
+
+// Authenticated Routes
+router.use(authenticate);
+
 router.post('/create-order', authorize(PERMISSIONS.PAYMENT_CREATE), async (req: AuthRequest, res, next) => {
   try {
     const { amount, type, paidForId, description, gateway = 'razorpay' } = req.body;
@@ -99,40 +237,6 @@ router.post('/create-order', authorize(PERMISSIONS.PAYMENT_CREATE), async (req: 
     });
 
     res.json({ success: true, data: { order, payment } });
-  } catch (e) { next(e); }
-});
-
-// Verify payment webhook
-router.post('/verify', async (req, res, next) => {
-  try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, paymentId } = req.body;
-    const body = razorpay_order_id + '|' + razorpay_payment_id;
-    const expectedSignature = crypto
-      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET || '')
-      .update(body)
-      .digest('hex');
-
-    if (expectedSignature !== razorpay_signature) {
-      throw new AppError('Invalid payment signature', 400);
-    }
-
-    const payment = await Payment.findByIdAndUpdate(paymentId, {
-      status: PaymentStatus.SUCCESS,
-      gatewayPaymentId: razorpay_payment_id,
-      gatewaySignature: razorpay_signature,
-    }, { new: true });
-
-    // Auto-generate receipt
-    if (payment) {
-      const count = await Receipt.countDocuments({ tenantId: payment.tenantId });
-      const receiptNo = `RCP-${new Date().getFullYear()}-${String(count + 1).padStart(6, '0')}`;
-      const receipt = await Receipt.create({ tenantId: payment.tenantId, receiptNo, paymentId: payment._id });
-      await Payment.findByIdAndUpdate(payment._id, { receiptId: receipt._id });
-      
-      await processPaymentDues(payment);
-    }
-
-    res.json({ success: true, message: 'Payment verified', data: payment });
   } catch (e) { next(e); }
 });
 
