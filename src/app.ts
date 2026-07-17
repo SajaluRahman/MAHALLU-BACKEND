@@ -93,6 +93,7 @@ export function createApp(): Application {
         process.env.FRONTEND_URL || 'http://localhost:3000',
         'http://localhost:3001',
         'https://mahallu.app',
+        'https://mahallu-dashbaord-five.vercel.app',  
         /\.mahallu\.app$/,
         /\.vercel\.app$/,
       ];
