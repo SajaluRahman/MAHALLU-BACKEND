@@ -104,11 +104,17 @@ router.get('/checkout', async (req, res) => {
         <div class="sub">Do not close this page or press back.</div>
 
         <script>
-          window.onload = function() {
+          let retryCount = 0;
+          function startCheckout() {
             try {
               if (typeof Razorpay === 'undefined') {
-                alert('Razorpay SDK failed to load. Please check your internet connection or reload the page.');
-                window.location.href = "mahallu://payments?status=failure&error=SDK+failed+to+load";
+                if (retryCount > 100) { // Timeout after 10 seconds of retries
+                  alert('Razorpay SDK failed to load. Please check your internet connection or reload the page.');
+                  window.location.href = "mahallu://payments?status=failure&error=SDK+failed+to+load";
+                  return;
+                }
+                retryCount++;
+                setTimeout(startCheckout, 100);
                 return;
               }
 
@@ -162,7 +168,8 @@ router.get('/checkout', async (req, res) => {
               alert('Initialization Error: ' + err.message);
               window.location.href = "mahallu://payments?status=failure&error=" + encodeURIComponent(err.message);
             }
-          };
+          }
+          startCheckout();
         </script>
       </body>
     </html>
