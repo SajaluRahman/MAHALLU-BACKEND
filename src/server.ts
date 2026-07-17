@@ -43,20 +43,26 @@ initializeCronJobs();
       });
     });
 
-    process.on('unhandledRejection', (err: Error) => {
-      logger.error('Unhandled Promise Rejection:', err);
-      server.close(() => process.exit(1));
-    });
+  process.on('unhandledRejection', (err: Error) => {
+  console.error(err);
+  logger.error('Unhandled Promise Rejection:', err);
+  server.close(() => process.exit(1));
+});
 
-    process.on('uncaughtException', (err: Error) => {
-      logger.error('Uncaught Exception:', err);
-      process.exit(1);
-    });
+process.on('uncaughtException', (err: Error) => {
+  console.error(err);
+  logger.error('Uncaught Exception:', err);
+  process.exit(1);
+});
 
   } catch (error) {
-    logger.error('Failed to start server:', error);
-    process.exit(1);
-  }
+  console.error("❌ Failed to start server:");
+  console.error(error);
+
+  logger.error("Failed to start server:", error);
+
+  process.exit(1);
+}
 }
 
 bootstrap();
