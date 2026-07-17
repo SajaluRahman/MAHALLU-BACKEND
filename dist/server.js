@@ -10,12 +10,20 @@ const PORT = parseInt(process.env.PORT || '5000', 10);
 async function bootstrap() {
     try {
         // Connect to databases
+        // Connect MongoDB
         await (0, database_1.connectDB)();
-        await (0, redis_1.connectRedis)();
-        // Create Express app
+        // Try Redis, but don't block server startup
+        try {
+            await (0, redis_1.connectRedis)();
+        }
+        catch (error) {
+            logger_1.logger.warn('Redis unavailable. Continuing without Redis.');
+        }
         const app = (0, app_1.createApp)();
-        // Initialize cron jobs
         (0, jobs_1.initializeCronJobs)();
+        // const server = app.listen(PORT, () => {
+        //   logger.info(`🚀 Mahallu ERP Backend running on port ${PORT}`);
+        // });
         const server = app.listen(PORT, () => {
             logger_1.logger.info(`🚀 Mahallu ERP Backend running on port ${PORT}`);
             logger_1.logger.info(`📡 Environment: ${process.env.NODE_ENV}`);
@@ -30,16 +38,20 @@ async function bootstrap() {
             });
         });
         process.on('unhandledRejection', (err) => {
+            console.error(err);
             logger_1.logger.error('Unhandled Promise Rejection:', err);
             server.close(() => process.exit(1));
         });
         process.on('uncaughtException', (err) => {
+            console.error(err);
             logger_1.logger.error('Uncaught Exception:', err);
             process.exit(1);
         });
     }
     catch (error) {
-        logger_1.logger.error('Failed to start server:', error);
+        console.error("❌ Failed to start server:");
+        console.error(error);
+        logger_1.logger.error("Failed to start server:", error);
         process.exit(1);
     }
 }

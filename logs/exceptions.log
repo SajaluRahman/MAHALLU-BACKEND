@@ -1845,3 +1845,99 @@ SyntaxError [ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX]: TypeScript enum is not supporte
     at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
     at Module.require (node:internal/modules/cjs/loader:1619:12)
     at require (node:internal/modules/helpers:191:16)
+2026-07-17 17:02:56 [error]: /Users/sajalurahman/Desktop/mahallu/apps/backend/packages/shared-types/src/index.ts:7
+    
+  > export enum UserRole {
+      SUPER_ADMIN = 'super_admin',
+      SECRETARY = 'secretary',
+      TREASURER = 'treasurer',
+      IMAM = 'imam',
+      MADRASA_PRINCIPAL = 'madrasa_principal',
+      USTADH = 'ustadh',
+      PARENT = 'parent',
+      STUDENT = 'student',
+  > }
+
+SyntaxError [ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX]: TypeScript enum is not supported in strip-only mode
+    at parseTypeScript (node:internal/modules/typescript:59:40)
+    at processTypeScriptCode (node:internal/modules/typescript:135:42)
+    at stripTypeScriptModuleTypes (node:internal/modules/typescript:184:22)
+    at Module._compile (node:internal/modules/cjs/loader:1827:15)
+    at Module._extensions..js (node:internal/modules/cjs/loader:2013:10)
+    at Module.load (node:internal/modules/cjs/loader:1596:32)
+    at Module._load (node:internal/modules/cjs/loader:1398:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.require (node:internal/modules/cjs/loader:1619:12)
+    at require (node:internal/modules/helpers:191:16)
+2026-07-17 17:04:21 [error]: /Users/sajalurahman/Desktop/mahallu/apps/backend/packages/shared-types/src/index.ts:7
+    
+  > export enum UserRole {
+      SUPER_ADMIN = 'super_admin',
+      SECRETARY = 'secretary',
+      TREASURER = 'treasurer',
+      IMAM = 'imam',
+      MADRASA_PRINCIPAL = 'madrasa_principal',
+      USTADH = 'ustadh',
+      PARENT = 'parent',
+      STUDENT = 'student',
+  > }
+
+SyntaxError [ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX]: TypeScript enum is not supported in strip-only mode
+    at parseTypeScript (node:internal/modules/typescript:59:40)
+    at processTypeScriptCode (node:internal/modules/typescript:135:42)
+    at stripTypeScriptModuleTypes (node:internal/modules/typescript:184:22)
+    at Module._compile (node:internal/modules/cjs/loader:1827:15)
+    at Module._extensions..js (node:internal/modules/cjs/loader:2013:10)
+    at Module.load (node:internal/modules/cjs/loader:1596:32)
+    at Module._load (node:internal/modules/cjs/loader:1398:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.require (node:internal/modules/cjs/loader:1619:12)
+    at require (node:internal/modules/helpers:191:16)
+2026-07-17 17:05:04 [error]: /Users/sajalurahman/Desktop/mahallu/apps/backend/packages/shared-types/src/index.ts:7
+    
+  > export enum UserRole {
+      SUPER_ADMIN = 'super_admin',
+      SECRETARY = 'secretary',
+      TREASURER = 'treasurer',
+      IMAM = 'imam',
+      MADRASA_PRINCIPAL = 'madrasa_principal',
+      USTADH = 'ustadh',
+      PARENT = 'parent',
+      STUDENT = 'student',
+  > }
+
+SyntaxError [ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX]: TypeScript enum is not supported in strip-only mode
+    at parseTypeScript (node:internal/modules/typescript:59:40)
+    at processTypeScriptCode (node:internal/modules/typescript:135:42)
+    at stripTypeScriptModuleTypes (node:internal/modules/typescript:184:22)
+    at Module._compile (node:internal/modules/cjs/loader:1827:15)
+    at Module._extensions..js (node:internal/modules/cjs/loader:2013:10)
+    at Module.load (node:internal/modules/cjs/loader:1596:32)
+    at Module._load (node:internal/modules/cjs/loader:1398:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.require (node:internal/modules/cjs/loader:1619:12)
+    at require (node:internal/modules/helpers:191:16)
+2026-07-17 17:08:12 [error]: /Users/sajalurahman/Desktop/mahallu/apps/backend/packages/shared-types/src/index.ts:7
+    
+  > export enum UserRole {
+      SUPER_ADMIN = 'super_admin',
+      SECRETARY = 'secretary',
+      TREASURER = 'treasurer',
+      IMAM = 'imam',
+      MADRASA_PRINCIPAL = 'madrasa_principal',
+      USTADH = 'ustadh',
+      PARENT = 'parent',
+      STUDENT = 'student',
+  > }
+
+SyntaxError [ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX]: TypeScript enum is not supported in strip-only mode
+    at parseTypeScript (node:internal/modules/typescript:59:40)
+    at processTypeScriptCode (node:internal/modules/typescript:135:42)
+    at stripTypeScriptModuleTypes (node:internal/modules/typescript:184:22)
+    at Module._compile (node:internal/modules/cjs/loader:1827:15)
+    at Module._extensions..js (node:internal/modules/cjs/loader:2013:10)
+    at Module.load (node:internal/modules/cjs/loader:1596:32)
+    at Module._load (node:internal/modules/cjs/loader:1398:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.require (node:internal/modules/cjs/loader:1619:12)
+    at require (node:internal/modules/helpers:191:16)
