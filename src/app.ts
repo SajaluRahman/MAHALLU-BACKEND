@@ -94,6 +94,7 @@ export function createApp(): Application {
         'http://localhost:3001',
         'https://mahallu.app',
         /\.mahallu\.app$/,
+        /\.vercel\.app$/,
       ];
       if (!origin || allowedOrigins.some(o => typeof o === 'string' ? o === origin : o.test(origin))) {
         callback(null, true);
