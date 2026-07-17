@@ -11070,3 +11070,95 @@ Use mongoose.model(name, schema)
 2026-07-17 16:15:05 [error]: AggregateError
     at internalConnectMultiple (node:net:1194:18)
     at afterConnectMultiple (node:net:1784:7)
+2026-07-17 16:19:13 [info]: ✅ MongoDB connected: ac-sbq0ezg-shard-00-01.s6lu4m7.mongodb.net
+2026-07-17 16:19:13 [error]: AggregateError
+    at internalConnectMultiple (node:net:1194:18)
+    at afterConnectMultiple (node:net:1784:7)
+2026-07-17 16:19:13 [warn]: Redis reconnecting...
+2026-07-17 16:19:13 [error]: AggregateError
+    at internalConnectMultiple (node:net:1194:18)
+    at afterConnectMultiple (node:net:1784:7)
+2026-07-17 16:19:14 [warn]: Redis reconnecting...
+2026-07-17 16:19:14 [error]: AggregateError
+    at internalConnectMultiple (node:net:1194:18)
+    at afterConnectMultiple (node:net:1784:7)
+2026-07-17 16:19:14 [warn]: Redis reconnecting...
+2026-07-17 16:19:14 [error]: AggregateError
+    at internalConnectMultiple (node:net:1194:18)
+    at afterConnectMultiple (node:net:1784:7)
+2026-07-17 16:19:14 [warn]: AggregateError
+    at internalConnectMultiple (node:net:1194:18)
+    at afterConnectMultiple (node:net:1784:7)
+2026-07-17 16:19:14 [info]: ✅ Cron jobs initialized
+2026-07-17 16:19:14 [info]: 🚀 Mahallu ERP Backend running on port 5000
+2026-07-17 16:19:14 [info]: 📡 Environment: development
+2026-07-17 16:19:14 [info]: 🌐 API Base: http://localhost:5000/api/v1
+2026-07-17 16:38:42 [info]: ✅ MongoDB connected: ac-sbq0ezg-shard-00-00.s6lu4m7.mongodb.net
+2026-07-17 16:38:42 [error]: AggregateError
+    at internalConnectMultiple (node:net:1194:18)
+    at afterConnectMultiple (node:net:1784:7)
+2026-07-17 16:38:42 [warn]: Redis reconnecting...
+2026-07-17 16:38:42 [error]: AggregateError
+    at internalConnectMultiple (node:net:1194:18)
+    at afterConnectMultiple (node:net:1784:7)
+2026-07-17 16:38:43 [warn]: Redis reconnecting...
+2026-07-17 16:38:43 [error]: AggregateError
+    at internalConnectMultiple (node:net:1194:18)
+    at afterConnectMultiple (node:net:1784:7)
+2026-07-17 16:38:43 [warn]: Redis reconnecting...
+2026-07-17 16:38:43 [error]: AggregateError
+    at internalConnectMultiple (node:net:1194:18)
+    at afterConnectMultiple (node:net:1784:7)
+2026-07-17 16:38:43 [warn]: AggregateError
+    at internalConnectMultiple (node:net:1194:18)
+    at afterConnectMultiple (node:net:1784:7)
+2026-07-17 16:38:43 [info]: ✅ Cron jobs initialized
+2026-07-17 16:38:43 [info]: 🚀 Mahallu ERP Backend running on port 5000
+2026-07-17 16:38:43 [info]: 📡 Environment: development
+2026-07-17 16:38:43 [info]: 🌐 API Base: http://localhost:5000/api/v1
+2026-07-17 16:40:18 [info]: ✅ MongoDB connected: ac-sbq0ezg-shard-00-02.s6lu4m7.mongodb.net
+2026-07-17 16:40:18 [error]: AggregateError
+    at internalConnectMultiple (node:net:1194:18)
+    at afterConnectMultiple (node:net:1784:7)
+2026-07-17 16:40:19 [warn]: Redis reconnecting...
+2026-07-17 16:40:19 [error]: AggregateError
+    at internalConnectMultiple (node:net:1194:18)
+    at afterConnectMultiple (node:net:1784:7)
+2026-07-17 16:40:19 [warn]: Redis reconnecting...
+2026-07-17 16:40:19 [error]: AggregateError
+    at internalConnectMultiple (node:net:1194:18)
+    at afterConnectMultiple (node:net:1784:7)
+2026-07-17 16:40:20 [warn]: Redis reconnecting...
+2026-07-17 16:40:20 [error]: AggregateError
+    at internalConnectMultiple (node:net:1194:18)
+    at afterConnectMultiple (node:net:1784:7)
+2026-07-17 16:40:20 [warn]: AggregateError
+    at internalConnectMultiple (node:net:1194:18)
+    at afterConnectMultiple (node:net:1784:7)
+2026-07-17 16:40:20 [info]: ✅ Cron jobs initialized
+2026-07-17 16:40:20 [info]: 🚀 Mahallu ERP Backend running on port 5000
+2026-07-17 16:40:20 [info]: 📡 Environment: development
+2026-07-17 16:40:20 [info]: 🌐 API Base: http://localhost:5000/api/v1
+2026-07-17 16:40:44 [info]: ✅ MongoDB connected: ac-sbq0ezg-shard-00-02.s6lu4m7.mongodb.net
+2026-07-17 16:40:44 [error]: AggregateError
+    at internalConnectMultiple (node:net:1194:18)
+    at afterConnectMultiple (node:net:1784:7)
+2026-07-17 16:40:44 [warn]: Redis reconnecting...
+2026-07-17 16:40:44 [error]: AggregateError
+    at internalConnectMultiple (node:net:1194:18)
+    at afterConnectMultiple (node:net:1784:7)
+2026-07-17 16:40:45 [warn]: Redis reconnecting...
+2026-07-17 16:40:45 [error]: AggregateError
+    at internalConnectMultiple (node:net:1194:18)
+    at afterConnectMultiple (node:net:1784:7)
+2026-07-17 16:40:45 [warn]: Redis reconnecting...
+2026-07-17 16:40:45 [error]: AggregateError
+    at internalConnectMultiple (node:net:1194:18)
+    at afterConnectMultiple (node:net:1784:7)
+2026-07-17 16:40:45 [warn]: AggregateError
+    at internalConnectMultiple (node:net:1194:18)
+    at afterConnectMultiple (node:net:1784:7)
+2026-07-17 16:40:45 [info]: ✅ Cron jobs initialized
+2026-07-17 16:40:45 [info]: 🚀 Mahallu ERP Backend running on port 5000
+2026-07-17 16:40:45 [info]: 📡 Environment: development
+2026-07-17 16:40:45 [info]: 🌐 API Base: http://localhost:5000/api/v1

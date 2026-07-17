@@ -10,14 +10,23 @@ const PORT = parseInt(process.env.PORT || '5000', 10);
 async function bootstrap() {
   try {
     // Connect to databases
-    await connectDB();
-    await connectRedis();
+  // Connect MongoDB
+await connectDB();
 
-    // Create Express app
-    const app = createApp();
+// Try Redis, but don't block server startup
+try {
+  await connectRedis();
+} catch (error) {
+  logger.warn('Redis unavailable. Continuing without Redis.');
+}
 
-    // Initialize cron jobs
-    initializeCronJobs();
+const app = createApp();
+
+initializeCronJobs();
+
+// const server = app.listen(PORT, () => {
+//   logger.info(`🚀 Mahallu ERP Backend running on port ${PORT}`);
+// });
 
     const server = app.listen(PORT, () => {
       logger.info(`🚀 Mahallu ERP Backend running on port ${PORT}`);
