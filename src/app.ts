@@ -80,9 +80,12 @@ export function createApp(): Application {
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "https://checkout.razorpay.com", "https://*.razorpay.com"],
+        scriptSrcElem: ["'self'", "'unsafe-inline'", "https://checkout.razorpay.com", "https://*.razorpay.com"],
         styleSrc: ["'self'", "'unsafe-inline'"],
-        imgSrc: ["'self'", 'data:', 'res.cloudinary.com'],
+        imgSrc: ["'self'", 'data:', 'res.cloudinary.com', "https://*.razorpay.com"],
+        connectSrc: ["'self'", "https://*.razorpay.com", "wss://*.razorpay.com"],
+        frameSrc: ["'self'", "https://*.razorpay.com"],
       },
     },
   }));
