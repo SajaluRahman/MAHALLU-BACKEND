@@ -30,8 +30,35 @@ export const surveyRoutes = (() => {
 export const receiptRoutes = (() => {
   const r = Router();
   r.use(authenticate);
-  r.get('/', async (req: AuthRequest, res, next) => { try { const receipts = await Receipt.find({ tenantId: req.user!.tenantId }).populate('paymentId').sort({ createdAt: -1 }).lean(); res.json({ success: true, data: receipts }); } catch (e) { next(e); } });
-  r.get('/:id', async (req: AuthRequest, res, next) => { try { const receipt = await Receipt.findOne({ _id: req.params.id, tenantId: req.user!.tenantId }).populate('paymentId').lean(); res.json({ success: true, data: receipt }); } catch (e) { next(e); } });
+  r.get('/', async (req: AuthRequest, res, next) => {
+    try {
+      const receipts = await Receipt.find({ tenantId: req.user!.tenantId })
+        .populate({
+          path: 'paymentId',
+          populate: [
+            { path: 'paidForId', select: 'name phone' },
+            { path: 'paidById', select: 'name phone' }
+          ]
+        })
+        .sort({ createdAt: -1 })
+        .lean();
+      res.json({ success: true, data: receipts });
+    } catch (e) { next(e); }
+  });
+  r.get('/:id', async (req: AuthRequest, res, next) => {
+    try {
+      const receipt = await Receipt.findOne({ _id: req.params.id, tenantId: req.user!.tenantId })
+        .populate({
+          path: 'paymentId',
+          populate: [
+            { path: 'paidForId', select: 'name phone' },
+            { path: 'paidById', select: 'name phone' }
+          ]
+        })
+        .lean();
+      res.json({ success: true, data: receipt });
+    } catch (e) { next(e); }
+  });
 
   r.post('/manual', async (req: AuthRequest, res, next) => {
     try {
