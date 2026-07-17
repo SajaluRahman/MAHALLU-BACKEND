@@ -52,7 +52,7 @@ export async function processPaymentDues(payment: any) {
 
 // Public Checkout UI Page for Mobile Browser
 router.get('/checkout', async (req, res) => {
-  const { orderId, paymentId, amount, name, email, phone } = req.query;
+  const { orderId, paymentId, amount, name, email, phone, redirectUrl } = req.query;
   const key_id = process.env.RAZORPAY_KEY_ID || 'rzp_test_TEgC71zlAgHt9w';
 
   const html = `
@@ -95,22 +95,55 @@ router.get('/checkout', async (req, res) => {
           .sub {
             font-size: 14px;
             color: #64748B;
+            margin-bottom: 15px;
+          }
+          .button {
+            display: inline-block;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 14px;
+            margin-top: 15px;
+            transition: opacity 0.2s;
+          }
+          .button:active {
+            opacity: 0.8;
           }
         </style>
       </head>
       <body>
-        <div class="loader"></div>
-        <div class="title">Initiating Secure Payment...</div>
-        <div class="sub">Do not close this page or press back.</div>
+        <div id="loading" style="display: flex; flex-direction: column; align-items: center;">
+          <div class="loader"></div>
+          <div class="title">Initiating Secure Payment...</div>
+          <div class="sub">Do not close this page or press back.</div>
+        </div>
+
+        <div id="success" style="display: none; flex-direction: column; align-items: center; text-align: center; padding: 20px;">
+          <div style="font-size: 60px; color: #16A34A; margin-bottom: 15px;">✅</div>
+          <div class="title" style="color: #16A34A; font-size: 22px;">Payment Successful!</div>
+          <div class="sub" style="margin-bottom: 25px;">Your transaction has been verified successfully.</div>
+          <a id="btn-success" href="#" class="button" style="background-color: #0B4A42;">Return to Mahallu App</a>
+        </div>
+
+        <div id="failure" style="display: none; flex-direction: column; align-items: center; text-align: center; padding: 20px;">
+          <div style="font-size: 60px; color: #DC2626; margin-bottom: 15px;">❌</div>
+          <div class="title" style="color: #DC2626; font-size: 22px;">Payment Failed</div>
+          <div id="error-message" class="sub" style="margin-bottom: 25px;">Verification failed.</div>
+          <a id="btn-failure" href="#" class="button" style="background-color: #DC2626;">Return to Mahallu App</a>
+        </div>
 
         <script>
           let retryCount = 0;
+          const customRedirectUrl = "${redirectUrl || 'mahallu://payments'}";
+          
           function startCheckout() {
             try {
               if (typeof Razorpay === 'undefined') {
                 if (retryCount > 100) { // Timeout after 10 seconds of retries
                   alert('Razorpay SDK failed to load. Please check your internet connection or reload the page.');
-                  window.location.href = "mahallu://payments?status=failure&error=SDK+failed+to+load";
+                  window.location.href = customRedirectUrl + "?status=failure&error=SDK+failed+to+load";
                   return;
                 }
                 retryCount++;
@@ -126,6 +159,7 @@ router.get('/checkout', async (req, res) => {
                 description: "Dues & Donations Payment",
                 order_id: "${orderId}",
                 handler: async function (response) {
+                  document.getElementById('loading').style.display = 'none';
                   try {
                     // Verify the payment signature on the backend
                     const verifyRes = await fetch('/api/v1/payments/verify', {
@@ -140,12 +174,24 @@ router.get('/checkout', async (req, res) => {
                     });
                     const verifyData = await verifyRes.json();
                     if (verifyData.success) {
-                      window.location.href = "mahallu://payments?status=success&paymentId=${paymentId}";
+                      const target = customRedirectUrl + "?status=success&paymentId=${paymentId}";
+                      document.getElementById('btn-success').href = target;
+                      document.getElementById('success').style.display = 'flex';
+                      window.location.href = target;
                     } else {
-                      window.location.href = "mahallu://payments?status=failure&error=" + encodeURIComponent(verifyData.message || 'Verification failed');
+                      const errMsg = verifyData.message || 'Verification failed';
+                      const target = customRedirectUrl + "?status=failure&error=" + encodeURIComponent(errMsg);
+                      document.getElementById('error-message').textContent = errMsg;
+                      document.getElementById('btn-failure').href = target;
+                      document.getElementById('failure').style.display = 'flex';
+                      window.location.href = target;
                     }
                   } catch (e) {
-                    window.location.href = "mahallu://payments?status=failure&error=" + encodeURIComponent(e.message);
+                    const target = customRedirectUrl + "?status=failure&error=" + encodeURIComponent(e.message);
+                    document.getElementById('error-message').textContent = e.message;
+                    document.getElementById('btn-failure').href = target;
+                    document.getElementById('failure').style.display = 'flex';
+                    window.location.href = target;
                   }
                 },
                 prefill: {
@@ -158,15 +204,17 @@ router.get('/checkout', async (req, res) => {
                 },
                 modal: {
                   ondismiss: function() {
-                    window.location.href = "mahallu://payments?status=cancelled";
+                    window.location.href = customRedirectUrl + "?status=cancelled";
                   }
                 }
               };
               const rzp = new Razorpay(options);
               rzp.open();
             } catch (err) {
-              alert('Initialization Error: ' + err.message);
-              window.location.href = "mahallu://payments?status=failure&error=" + encodeURIComponent(err.message);
+              document.getElementById('loading').style.display = 'none';
+              document.getElementById('error-message').textContent = err.message;
+              document.getElementById('failure').style.display = 'flex';
+              window.location.href = customRedirectUrl + "?status=failure&error=" + encodeURIComponent(err.message);
             }
           }
           startCheckout();
