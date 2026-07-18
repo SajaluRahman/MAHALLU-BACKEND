@@ -55,20 +55,30 @@ r.get('/class/:classId', authorize(PERMISSIONS.ATTENDANCE_VIEW), async (req: Aut
       tenantId: req.user!.tenantId,
       classId: req.params.classId,
       date: queryDate,
-    }).populate({ path: 'entityId', select: 'name admissionNo', options: { strictPopulate: false } }).lean();
+    }).lean();
 
     if (records.length > 0) {
-      const mapped = records.map((r: any) => ({
-        _id: r._id,
-        entityId: {
-          _id: r.entityId?._id,
-          name: r.entityId?.name || 'Unknown Student',
-          admissionNo: r.entityId?.admissionNo || '—'
-        },
-        date: r.date,
-        status: r.status,
-        isSaved: true
-      }));
+      const studentIds = records.map(r => r.entityId);
+      const students = await Student.find({
+        _id: { $in: studentIds }
+      }).populate({ path: 'memberId', select: 'name', options: { strictPopulate: false } }).lean();
+
+      const studentMap = new Map(students.map(s => [s._id.toString(), s]));
+
+      const mapped = records.map((r: any) => {
+        const studentObj = studentMap.get(r.entityId?.toString() || '');
+        return {
+          _id: r._id,
+          entityId: {
+            _id: r.entityId,
+            name: studentObj?.memberId?.name || studentObj?.name || 'Unknown Student',
+            admissionNo: studentObj?.admissionNo || '—'
+          },
+          date: r.date,
+          status: r.status,
+          isSaved: true
+        };
+      });
       return res.json({ success: true, data: mapped });
     }
 
