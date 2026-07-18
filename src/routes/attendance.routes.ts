@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import mongoose from 'mongoose';
 import { authenticate, authorize } from '../middleware/auth';
 import { PERMISSIONS } from '@mahallu/shared-config';
 import { Attendance } from '../models/Attendance';
@@ -14,8 +15,22 @@ r.post('/bulk', authorize(PERMISSIONS.ATTENDANCE_MARK), async (req: AuthRequest,
     const tenantId = req.user!.tenantId;
     const ops = records.map((record: { entityId: string; status: AttendanceStatus }) => ({
       updateOne: {
-        filter: { tenantId, entityId: record.entityId, date: new Date(date) },
-        update: { $set: { tenantId, entityId: record.entityId, entityType, classId, date: new Date(date), status: record.status, markedById: req.user!.userId } },
+        filter: {
+          tenantId: new mongoose.Types.ObjectId(tenantId),
+          entityId: new mongoose.Types.ObjectId(record.entityId),
+          date: new Date(date)
+        },
+        update: {
+          $set: {
+            tenantId: new mongoose.Types.ObjectId(tenantId),
+            entityId: new mongoose.Types.ObjectId(record.entityId),
+            entityType,
+            classId: classId ? new mongoose.Types.ObjectId(classId) : undefined,
+            date: new Date(date),
+            status: record.status,
+            markedById: new mongoose.Types.ObjectId(req.user!.userId)
+          }
+        },
         upsert: true,
       },
     }));

@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import mongoose from 'mongoose';
 import { authenticate, AuthRequest } from '../middleware/auth';
 import { User } from '../models/User';
 import { Member } from '../models/Member';
@@ -527,17 +528,22 @@ router.post('/me/ustadh/attendance', async (req: AuthRequest, res, next) => {
     const ops = records.map((record: any) => ({
       updateOne: {
         filter: {
-          tenantId: req.user!.tenantId,
+          tenantId: new mongoose.Types.ObjectId(req.user!.tenantId),
           entityType: 'student',
-          entityId: record.studentId,
-          classId: classId,
+          entityId: new mongoose.Types.ObjectId(record.studentId),
+          classId: new mongoose.Types.ObjectId(classId),
           date: attendanceDate,
         },
         update: {
           $set: {
+            tenantId: new mongoose.Types.ObjectId(req.user!.tenantId),
+            entityType: 'student',
+            entityId: new mongoose.Types.ObjectId(record.studentId),
+            classId: new mongoose.Types.ObjectId(classId),
+            date: attendanceDate,
             status: record.status,
             note: record.note,
-            markedById: user.memberId,
+            markedById: new mongoose.Types.ObjectId(req.user!.userId),
           }
         },
         upsert: true,
