@@ -131,8 +131,8 @@ export const reportRoutes = (() => {
     try {
       const { Payment } = await import('../models/Payment');
       const payments = await Payment.find({ tenantId: req.user!.tenantId })
-        .populate('paidForId', 'name')
-        .populate('paidById', 'name')
+        .populate({ path: 'paidForId', select: 'name', options: { strictPopulate: false } })
+        .populate({ path: 'paidById', select: 'name', options: { strictPopulate: false } })
         .sort({ createdAt: -1 })
         .lean();
 
@@ -162,7 +162,7 @@ export const reportRoutes = (() => {
     try {
       const { Member } = await import('../models/Member');
       const members = await Member.find({ tenantId: req.user!.tenantId })
-        .populate('familyId', 'familyCode address wardNo')
+        .populate({ path: 'familyId', select: 'familyCode address wardNo', options: { strictPopulate: false } })
         .sort({ name: 1 })
         .lean();
 
@@ -192,9 +192,9 @@ export const reportRoutes = (() => {
     try {
       const { Student } = await import('../models/Student');
       const students = await Student.find({ tenantId: req.user!.tenantId })
-        .populate('memberId', 'name phone gender dateOfBirth')
-        .populate('classId', 'name')
-        .populate('guardianId', 'name phone')
+        .populate({ path: 'memberId', select: 'name phone gender dateOfBirth', options: { strictPopulate: false } })
+        .populate({ path: 'classId', select: 'name', options: { strictPopulate: false } })
+        .populate({ path: 'guardianId', select: 'name phone', options: { strictPopulate: false } })
         .sort({ name: 1 })
         .lean();
 
@@ -245,8 +245,8 @@ export const reportRoutes = (() => {
     try {
       const { Payment } = await import('../models/Payment');
       const payments = await Payment.find({ tenantId: req.user!.tenantId })
-        .populate('paidForId', 'name')
-        .populate('paidById', 'name')
+        .populate({ path: 'paidForId', select: 'name', options: { strictPopulate: false } })
+        .populate({ path: 'paidById', select: 'name', options: { strictPopulate: false } })
         .sort({ createdAt: -1 })
         .lean();
 
