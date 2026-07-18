@@ -181,6 +181,7 @@ export function createApp(): Application {
   app.use('/api/v1/inbox', inboxRoutes);
   app.use('/api/v1/finance', financeRoutes);
   app.use('/api/v1/receipts', receiptRoutes);
+  app.use('/api/v1/notices', notificationRoutes);
 
   // 4. API Routes - Dashboard/Mobile Aggregation
   app.use('/api/v1/dashboard', dashboardRoutes);
