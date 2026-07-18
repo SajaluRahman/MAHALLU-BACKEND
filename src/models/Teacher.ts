@@ -38,3 +38,6 @@ TeacherSchema.index({ tenantId: 1, employeeId: 1 }, { unique: true });
 TeacherSchema.index({ tenantId: 1, madrasaId: 1 });
 
 export const Teacher = mongoose.model<TeacherDocument>('Teacher', TeacherSchema);
+if (!mongoose.models.teacher) {
+  mongoose.model('teacher', TeacherSchema);
+}

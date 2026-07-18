@@ -66,3 +66,6 @@ StudentSchema.index({ tenantId: 1, guardianId: 1 });
 StudentSchema.index({ tenantId: 1, status: 1 });
 
 export const Student = mongoose.model<StudentDocument>('Student', StudentSchema);
+if (!mongoose.models.student) {
+  mongoose.model('student', StudentSchema);
+}

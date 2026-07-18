@@ -66,3 +66,6 @@ MemberSchema.virtual('age').get(function (this: MemberDocument) {
 });
 
 export const Member = mongoose.model<MemberDocument>('Member', MemberSchema);
+if (!mongoose.models.member) {
+  mongoose.model('member', MemberSchema);
+}
