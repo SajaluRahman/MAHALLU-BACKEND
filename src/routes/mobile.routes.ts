@@ -438,22 +438,36 @@ router.get('/me/ustadh/classes', async (req: AuthRequest, res, next) => {
     const teacher = await Teacher.findOne({ tenantId: req.user!.tenantId, memberId: user.memberId }).select('_id').lean();
     if (!teacher) return res.json({ success: true, data: [] });
 
-    // Ensure we await import if Class model isn't imported at top
     const { Class } = await import('../models/Class');
+    const { Student } = await import('../models/Student');
     
     const classes = await Class.find({
       tenantId: req.user!.tenantId,
       teacherId: teacher._id,
+    }).lean();
+
+    const classIds = classes.map(c => c._id);
+    const allStudents = await Student.find({
+      tenantId: req.user!.tenantId,
+      classId: { $in: classIds },
+      status: 'active',
+      isDeleted: { $ne: true }
     })
-      .populate({
-        path: 'students',
-        match: { isDeleted: { $ne: true } },
-        populate: { path: 'memberId', select: 'name photo phone gender' }
-      })
+      .populate({ path: 'memberId', select: 'name photo phone gender', options: { strictPopulate: false } })
       .lean();
 
+    const studentsByClass = new Map<string, any[]>();
+    allStudents.forEach(s => {
+      const cid = s.classId?.toString() || '';
+      if (!studentsByClass.has(cid)) studentsByClass.set(cid, []);
+      studentsByClass.get(cid)!.push(s);
+    });
+
+    classes.forEach((c: any) => {
+      c.students = studentsByClass.get(c._id.toString()) || [];
+    });
+
     if (teacher.assignedStudents && teacher.assignedStudents.length > 0) {
-      const { Student } = await import('../models/Student');
       const directStudents = await Student.find({
         _id: { $in: teacher.assignedStudents },
         isDeleted: { $ne: true }
