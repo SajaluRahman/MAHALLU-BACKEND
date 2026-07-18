@@ -217,6 +217,61 @@ export const reportRoutes = (() => {
     } catch (e) { next(e); }
   });
 
+  r.get('/export/income-expense', async (req: AuthRequest, res, next) => {
+    try {
+      const { Transaction } = await import('../models/Transaction');
+      const transactions = await Transaction.find({ tenantId: req.user!.tenantId })
+        .sort({ date: -1 })
+        .lean();
+
+      const headers = ['Date', 'Type', 'Category', 'Amount', 'Description', 'Reference No'];
+      const rows = transactions.map((t: any) => [
+        t.date ? new Date(t.date).toLocaleDateString() : '',
+        t.type || '',
+        t.category || '',
+        t.amount || 0,
+        t.description || '',
+        t.referenceNo || ''
+      ]);
+
+      const csvContent = [headers.join(','), ...rows.map(r => r.map(escapeCSV).join(','))].join('\n');
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename=income_expense_report.csv');
+      res.status(200).send(csvContent);
+    } catch (e) { next(e); }
+  });
+
+  r.get('/export/payments', async (req: AuthRequest, res, next) => {
+    try {
+      const { Payment } = await import('../models/Payment');
+      const payments = await Payment.find({ tenantId: req.user!.tenantId })
+        .populate('paidForId', 'name')
+        .populate('paidById', 'name')
+        .sort({ createdAt: -1 })
+        .lean();
+
+      const headers = ['Payment No', 'Date', 'Type', 'Amount', 'Gateway', 'Payment ID', 'Order ID', 'Status', 'Description', 'Paid For', 'Paid By'];
+      const rows = payments.map((p: any) => [
+        p.paymentNo || '',
+        p.createdAt ? new Date(p.createdAt).toLocaleDateString() : '',
+        p.type || '',
+        p.amount || 0,
+        p.gateway || '',
+        p.gatewayPaymentId || '',
+        p.gatewayOrderId || '',
+        p.status || '',
+        p.description || '',
+        p.paidForId?.name || '',
+        p.paidById?.name || ''
+      ]);
+
+      const csvContent = [headers.join(','), ...rows.map(r => r.map(escapeCSV).join(','))].join('\n');
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename=payments_history_report.csv');
+      res.status(200).send(csvContent);
+    } catch (e) { next(e); }
+  });
+
   return r;
 })();
 
