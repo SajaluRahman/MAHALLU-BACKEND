@@ -11,29 +11,32 @@ r.use(authenticate);
 
 r.post('/bulk', authorize(PERMISSIONS.ATTENDANCE_MARK), async (req: AuthRequest, res, next) => {
   try {
-    const { records, classId, date, entityType } = req.body; // records: [{entityId, status}]
+    const { records, classId, date, entityType } = req.body;
     const tenantId = req.user!.tenantId;
-    const ops = records.map((record: { entityId: string; status: AttendanceStatus }) => ({
-      updateOne: {
-        filter: {
-          tenantId: new mongoose.Types.ObjectId(tenantId),
-          entityId: new mongoose.Types.ObjectId(record.entityId),
-          date: new Date(date)
-        },
-        update: {
-          $set: {
+    const ops = records.map((record: { entityId: string; status: AttendanceStatus; date?: string }) => {
+      const recordDate = record.date ? new Date(record.date) : new Date(date);
+      return {
+        updateOne: {
+          filter: {
             tenantId: new mongoose.Types.ObjectId(tenantId),
             entityId: new mongoose.Types.ObjectId(record.entityId),
-            entityType,
-            classId: classId ? new mongoose.Types.ObjectId(classId) : undefined,
-            date: new Date(date),
-            status: record.status,
-            markedById: new mongoose.Types.ObjectId(req.user!.userId)
-          }
-        },
-        upsert: true,
-      },
-    }));
+            date: recordDate
+          },
+          update: {
+            $set: {
+              tenantId: new mongoose.Types.ObjectId(tenantId),
+              entityId: new mongoose.Types.ObjectId(record.entityId),
+              entityType,
+              classId: classId ? new mongoose.Types.ObjectId(classId) : undefined,
+              date: recordDate,
+              status: record.status,
+              markedById: new mongoose.Types.ObjectId(req.user!.userId)
+            }
+          },
+          upsert: true,
+        }
+      };
+    });
     await Attendance.bulkWrite(ops);
     res.json({ success: true, message: `${records.length} attendance records saved` });
   } catch (e) { next(e); }
@@ -88,6 +91,50 @@ r.get('/class/:classId', authorize(PERMISSIONS.ATTENDANCE_VIEW), async (req: Aut
     }));
 
     res.json({ success: true, data: mappedStudents });
+  } catch (e) { next(e); }
+});
+
+r.get('/class/:classId/monthly', authorize(PERMISSIONS.ATTENDANCE_VIEW), async (req: AuthRequest, res, next) => {
+  try {
+    const { year, month } = req.query;
+    const y = parseInt(year as string) || new Date().getFullYear();
+    const m = parseInt(month as string) || (new Date().getMonth() + 1);
+
+    const startDate = new Date(y, m - 1, 1);
+    const endDate = new Date(y, m, 0);
+    endDate.setHours(23, 59, 59, 999);
+
+    const records = await Attendance.find({
+      tenantId: req.user!.tenantId,
+      classId: req.params.classId,
+      date: { $gte: startDate, $lte: endDate }
+    }).select('entityId date status').lean();
+
+    const { Student } = await import('../models/Student');
+    const students = await Student.find({
+      tenantId: req.user!.tenantId,
+      classId: req.params.classId,
+      status: 'active',
+      isDeleted: { $ne: true }
+    }).populate({ path: 'memberId', select: 'name', options: { strictPopulate: false } }).lean();
+
+    const formattedStudents = students.map((s: any) => ({
+      _id: s._id,
+      name: s.memberId?.name || s.name || 'Unknown Student',
+      admissionNo: s.admissionNo || '—'
+    }));
+
+    res.json({
+      success: true,
+      data: {
+        students: formattedStudents,
+        records: records.map((r: any) => ({
+          entityId: r.entityId,
+          date: r.date,
+          status: r.status
+        }))
+      }
+    });
   } catch (e) { next(e); }
 });
 
