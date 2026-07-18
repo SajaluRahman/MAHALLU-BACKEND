@@ -6,6 +6,9 @@ import { Attendance } from '../models/Attendance';
 import { AuthRequest } from '../middleware/auth';
 import { AttendanceStatus } from '@mahallu/shared-types';
 import dayjs from 'dayjs';
+import { Student } from '../models/Student';
+import { Teacher } from '../models/Teacher';
+import { Member } from '../models/Member';
 const r = Router();
 r.use(authenticate);
 
@@ -70,7 +73,6 @@ r.get('/class/:classId', authorize(PERMISSIONS.ATTENDANCE_VIEW), async (req: Aut
     }
 
     // No logs found. Fetch all active students in the class
-    const { Student } = await import('../models/Student');
     const students = await Student.find({
       tenantId: req.user!.tenantId,
       classId: req.params.classId,
@@ -110,7 +112,6 @@ r.get('/class/:classId/monthly', authorize(PERMISSIONS.ATTENDANCE_VIEW), async (
       date: { $gte: startDate, $lte: endDate }
     }).select('entityId date status').lean();
 
-    const { Student } = await import('../models/Student');
     const students = await Student.find({
       tenantId: req.user!.tenantId,
       classId: req.params.classId,
