@@ -115,7 +115,108 @@ export const settingsRoutes = (() => {
 export const reportRoutes = (() => {
   const r = Router();
   r.use(authenticate);
+  
+  const escapeCSV = (val: any) => {
+    if (val === null || val === undefined) return '';
+    let str = String(val);
+    if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+      str = '"' + str.replace(/"/g, '""') + '"';
+    }
+    return str;
+  };
+
   r.get('/financial', async (req: AuthRequest, res, next) => { try { const { Payment } = await import('../models/Payment'); const { startDate, endDate } = req.query; const filter: Record<string, unknown> = { tenantId: req.user!.tenantId }; if (startDate && endDate) filter.createdAt = { $gte: new Date(startDate as string), $lte: new Date(endDate as string) }; const data = await Payment.aggregate([{ $match: filter }, { $group: { _id: '$type', total: { $sum: '$amount' }, count: { $sum: 1 } } }]); res.json({ success: true, data }); } catch (e) { next(e); } });
+
+  r.get('/export/financial', async (req: AuthRequest, res, next) => {
+    try {
+      const { Payment } = await import('../models/Payment');
+      const payments = await Payment.find({ tenantId: req.user!.tenantId })
+        .populate('paidForId', 'name')
+        .populate('paidById', 'name')
+        .sort({ createdAt: -1 })
+        .lean();
+
+      const headers = ['Payment No', 'Date', 'Type', 'Amount', 'Gateway', 'Payment ID', 'Order ID', 'Status', 'Description', 'Paid For', 'Paid By'];
+      const rows = payments.map((p: any) => [
+        p.paymentNo || '',
+        p.createdAt ? new Date(p.createdAt).toLocaleDateString() : '',
+        p.type || '',
+        p.amount || 0,
+        p.gateway || '',
+        p.gatewayPaymentId || '',
+        p.gatewayOrderId || '',
+        p.status || '',
+        p.description || '',
+        p.paidForId?.name || '',
+        p.paidById?.name || ''
+      ]);
+
+      const csvContent = [headers.join(','), ...rows.map(r => r.map(escapeCSV).join(','))].join('\n');
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename=financial_report.csv');
+      res.status(200).send(csvContent);
+    } catch (e) { next(e); }
+  });
+
+  r.get('/export/members', async (req: AuthRequest, res, next) => {
+    try {
+      const { Member } = await import('../models/Member');
+      const members = await Member.find({ tenantId: req.user!.tenantId })
+        .populate('familyId', 'familyCode address wardNo')
+        .sort({ name: 1 })
+        .lean();
+
+      const headers = ['Name', 'Member ID', 'Family Code', 'Ward No', 'Address', 'Phone', 'Email', 'Gender', 'DOB', 'Blood Group', 'Status'];
+      const rows = members.map((m: any) => [
+        m.name || '',
+        m.memberId || '',
+        m.familyId?.familyCode || '',
+        m.familyId?.wardNo || '',
+        m.familyId?.address?.line1 || '',
+        m.phone || '',
+        m.email || '',
+        m.gender || '',
+        m.dateOfBirth ? new Date(m.dateOfBirth).toLocaleDateString() : '',
+        m.bloodGroup || '',
+        m.status || ''
+      ]);
+
+      const csvContent = [headers.join(','), ...rows.map(r => r.map(escapeCSV).join(','))].join('\n');
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename=member_census_report.csv');
+      res.status(200).send(csvContent);
+    } catch (e) { next(e); }
+  });
+
+  r.get('/export/academic', async (req: AuthRequest, res, next) => {
+    try {
+      const { Student } = await import('../models/Student');
+      const students = await Student.find({ tenantId: req.user!.tenantId })
+        .populate('memberId', 'name phone gender dateOfBirth')
+        .populate('classId', 'name')
+        .populate('guardianId', 'name phone')
+        .sort({ name: 1 })
+        .lean();
+
+      const headers = ['Student Name', 'Admission No', 'Class', 'Gender', 'DOB', 'Parent Name', 'Parent Phone', 'Status'];
+      const rows = students.map((s: any) => [
+        s.memberId?.name || s.name || '',
+        s.admissionNo || '',
+        s.classId?.name || '',
+        s.memberId?.gender || '',
+        s.memberId?.dateOfBirth ? new Date(s.memberId.dateOfBirth).toLocaleDateString() : '',
+        s.guardianId?.name || '',
+        s.guardianId?.phone || '',
+        s.status || ''
+      ]);
+
+      const csvContent = [headers.join(','), ...rows.map(r => r.map(escapeCSV).join(','))].join('\n');
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename=academic_progress_report.csv');
+      res.status(200).send(csvContent);
+    } catch (e) { next(e); }
+  });
+
   return r;
 })();
 
