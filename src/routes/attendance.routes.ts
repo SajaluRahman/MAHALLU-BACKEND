@@ -42,11 +42,52 @@ r.post('/bulk', authorize(PERMISSIONS.ATTENDANCE_MARK), async (req: AuthRequest,
 r.get('/class/:classId', authorize(PERMISSIONS.ATTENDANCE_VIEW), async (req: AuthRequest, res, next) => {
   try {
     const { date } = req.query;
+    const queryDate = date ? new Date(date as string) : dayjs().startOf('day').toDate();
+    queryDate.setHours(0, 0, 0, 0);
+
     const records = await Attendance.find({
-      tenantId: req.user!.tenantId, classId: req.params.classId,
-      date: date ? new Date(date as string) : { $gte: dayjs().startOf('day').toDate() },
-    }).populate('entityId', 'name admissionNo').lean();
-    res.json({ success: true, data: records });
+      tenantId: req.user!.tenantId,
+      classId: req.params.classId,
+      date: queryDate,
+    }).populate({ path: 'entityId', select: 'name admissionNo', options: { strictPopulate: false } }).lean();
+
+    if (records.length > 0) {
+      const mapped = records.map((r: any) => ({
+        _id: r._id,
+        entityId: {
+          _id: r.entityId?._id,
+          name: r.entityId?.name || 'Unknown Student',
+          admissionNo: r.entityId?.admissionNo || '—'
+        },
+        date: r.date,
+        status: r.status,
+        isSaved: true
+      }));
+      return res.json({ success: true, data: mapped });
+    }
+
+    // No logs found. Fetch all active students in the class
+    const { Student } = await import('../models/Student');
+    const students = await Student.find({
+      tenantId: req.user!.tenantId,
+      classId: req.params.classId,
+      status: 'active',
+      isDeleted: { $ne: true }
+    }).populate({ path: 'memberId', select: 'name', options: { strictPopulate: false } }).lean();
+
+    const mappedStudents = students.map((s: any) => ({
+      _id: s._id,
+      entityId: {
+        _id: s._id,
+        name: s.memberId?.name || s.name || 'Unknown Student',
+        admissionNo: s.admissionNo || '—'
+      },
+      date: queryDate,
+      status: 'present',
+      isSaved: false
+    }));
+
+    res.json({ success: true, data: mappedStudents });
   } catch (e) { next(e); }
 });
 
