@@ -51,38 +51,6 @@ r.get('/class/:classId', authorize(PERMISSIONS.ATTENDANCE_VIEW), async (req: Aut
     const queryDate = date ? new Date(date as string) : dayjs().startOf('day').toDate();
     queryDate.setHours(0, 0, 0, 0);
 
-    const records = await Attendance.find({
-      tenantId: req.user!.tenantId,
-      classId: req.params.classId,
-      date: queryDate,
-    }).lean();
-
-    if (records.length > 0) {
-      const studentIds = records.map(r => r.entityId);
-      const students = await Student.find({
-        _id: { $in: studentIds }
-      }).populate({ path: 'memberId', select: 'name', options: { strictPopulate: false } }).lean();
-
-      const studentMap = new Map(students.map(s => [s._id.toString(), s]));
-
-      const mapped = records.map((r: any) => {
-        const studentObj = studentMap.get(r.entityId?.toString() || '');
-        return {
-          _id: r._id,
-          entityId: {
-            _id: r.entityId,
-            name: studentObj?.memberId?.name || studentObj?.name || 'Unknown Student',
-            admissionNo: studentObj?.admissionNo || '—'
-          },
-          date: r.date,
-          status: r.status,
-          isSaved: true
-        };
-      });
-      return res.json({ success: true, data: mapped });
-    }
-
-    // No logs found. Fetch all active students in the class
     const students = await Student.find({
       tenantId: req.user!.tenantId,
       classId: req.params.classId,
@@ -90,19 +58,30 @@ r.get('/class/:classId', authorize(PERMISSIONS.ATTENDANCE_VIEW), async (req: Aut
       isDeleted: { $ne: true }
     }).populate({ path: 'memberId', select: 'name', options: { strictPopulate: false } }).lean();
 
-    const mappedStudents = students.map((s: any) => ({
-      _id: s._id,
-      entityId: {
-        _id: s._id,
-        name: s.memberId?.name || s.name || 'Unknown Student',
-        admissionNo: s.admissionNo || '—'
-      },
+    const records = await Attendance.find({
+      tenantId: req.user!.tenantId,
+      classId: req.params.classId,
       date: queryDate,
-      status: 'present',
-      isSaved: false
-    }));
+    }).lean();
 
-    res.json({ success: true, data: mappedStudents });
+    const recordsMap = new Map(records.map(r => [r.entityId?.toString() || '', r]));
+
+    const data = students.map((s: any) => {
+      const savedRecord = recordsMap.get(s._id.toString());
+      return {
+        _id: savedRecord?._id || undefined,
+        entityId: {
+          _id: s._id,
+          name: s.memberId?.name || s.name || 'Unknown Student',
+          admissionNo: s.admissionNo || '—'
+        },
+        date: queryDate,
+        status: savedRecord?.status || 'present',
+        isSaved: !!savedRecord
+      };
+    });
+
+    res.json({ success: true, data });
   } catch (e) { next(e); }
 });
 
