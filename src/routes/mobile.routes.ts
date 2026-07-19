@@ -1066,8 +1066,14 @@ router.post('/sadar/students', async (req: AuthRequest, res, next) => {
       return res.status(400).json({ success: false, message: 'Name, Class, and Family are required' });
     }
 
-    const family = await Family.findOne({ _id: familyId, tenantId: req.user!.tenantId });
+    const family = await Family.findOne({ _id: familyId, tenantId: req.user!.tenantId }).populate('headMemberId');
     if (!family) return res.status(404).json({ success: false, message: 'Family not found' });
+
+    const { Class } = await import('../models/Class');
+    const classDoc = await Class.findOne({ _id: classId, tenantId: req.user!.tenantId });
+    if (!classDoc) return res.status(404).json({ success: false, message: 'Class not found' });
+
+    const headMember = family.headMemberId as any;
 
     // 1. Create student Member profile
     const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
@@ -1075,6 +1081,7 @@ router.post('/sadar/students', async (req: AuthRequest, res, next) => {
       tenantId: req.user!.tenantId,
       memberId: `MHL-${new Date().getFullYear()}-${randomStr}`,
       name,
+      phone: headMember?.phone || '0000000000',
       familyId: family._id,
       gender: 'male',
       status: 'active',
@@ -1095,8 +1102,9 @@ router.post('/sadar/students', async (req: AuthRequest, res, next) => {
       admissionNo: admissionNo || `ADM-${new Date().getFullYear()}-${randomStr}`,
       admissionDate: new Date(),
       classId,
-      madrasaId: family.tenantId,
+      madrasaId: classDoc.madrasaId,
       guardianId: family.headMemberId,
+      familyId: family._id,
       status: 'active',
     });
 
