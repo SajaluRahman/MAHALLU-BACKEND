@@ -543,7 +543,7 @@ router.post('/me/ustadh/attendance', async (req: AuthRequest, res, next) => {
       updateOne: {
         filter: {
           tenantId: new mongoose.Types.ObjectId(req.user!.tenantId),
-          entityType: 'student',
+          entityType: 'student' as const,
           entityId: new mongoose.Types.ObjectId(record.studentId),
           classId: new mongoose.Types.ObjectId(classId),
           date: attendanceDate,
@@ -551,7 +551,7 @@ router.post('/me/ustadh/attendance', async (req: AuthRequest, res, next) => {
         update: {
           $set: {
             tenantId: new mongoose.Types.ObjectId(req.user!.tenantId),
-            entityType: 'student',
+            entityType: 'student' as const,
             entityId: new mongoose.Types.ObjectId(record.studentId),
             classId: new mongoose.Types.ObjectId(classId),
             date: attendanceDate,
@@ -1047,8 +1047,8 @@ router.get('/sadar/classes', async (req: AuthRequest, res, next) => {
       return res.status(403).json({ success: false, message: 'Sadar Mualim role required' });
     }
 
-    const { Class } = await import('../models/Class');
-    const classes = await Class.find({ tenantId: req.user!.tenantId }).lean();
+    const ClassModel = mongoose.model('Class');
+    const classes = await ClassModel.find({ tenantId: req.user!.tenantId }).lean();
     res.json({ success: true, data: classes });
   } catch (e) { next(e); }
 });
@@ -1069,8 +1069,8 @@ router.post('/sadar/students', async (req: AuthRequest, res, next) => {
     const family = await Family.findOne({ _id: familyId, tenantId: req.user!.tenantId }).populate('headMemberId');
     if (!family) return res.status(404).json({ success: false, message: 'Family not found' });
 
-    const { Class } = await import('../models/Class');
-    const classDoc = await Class.findOne({ _id: classId, tenantId: req.user!.tenantId });
+    const ClassModel = mongoose.model('Class');
+    const classDoc = await ClassModel.findOne({ _id: classId, tenantId: req.user!.tenantId });
     if (!classDoc) return res.status(404).json({ success: false, message: 'Class not found' });
 
     const headMember = family.headMemberId as any;
@@ -1109,8 +1109,8 @@ router.post('/sadar/students', async (req: AuthRequest, res, next) => {
     });
 
     // 4. Register in Class collection students list
-    const { Class } = await import('../models/Class');
-    await Class.findByIdAndUpdate(classId, { $addToSet: { students: newStudent._id } });
+    const ClassModel = mongoose.model('Class');
+    await ClassModel.findByIdAndUpdate(classId, { $addToSet: { students: newStudent._id } });
 
     res.status(201).json({ success: true, data: newStudent });
   } catch (e) { next(e); }
