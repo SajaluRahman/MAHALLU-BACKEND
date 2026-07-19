@@ -12,7 +12,19 @@ export const notificationRoutes = (() => {
   const r = Router();
   r.use(authenticate);
   r.get('/', async (req: AuthRequest, res, next) => { try { const n = await Notification.find({ tenantId: req.user!.tenantId }).sort({ createdAt: -1 }).limit(50).lean(); res.json({ success: true, data: n }); } catch (e) { next(e); } });
-  r.post('/', async (req: AuthRequest, res, next) => { try { const n = await Notification.create({ ...req.body, tenantId: req.user!.tenantId }); res.status(201).json({ success: true, data: n }); } catch (e) { next(e); } });
+  r.post('/', async (req: AuthRequest, res, next) => {
+    try {
+      const n = await Notification.create({ ...req.body, tenantId: req.user!.tenantId });
+      const io = req.app.get('io');
+      if (io) {
+        io.to(`tenant-${req.user!.tenantId}`).emit('new-notice', {
+          title: n.title,
+          body: n.message || n.body || 'You have a new notice announcement.',
+        });
+      }
+      res.status(201).json({ success: true, data: n });
+    } catch (e) { next(e); }
+  });
   return r;
 })();
 
