@@ -1054,7 +1054,7 @@ router.get('/sadar/classes', async (req: AuthRequest, res, next) => {
 });
 
 // POST /mobile/sadar/students
-router.post('/mobile/sadar/students', async (req: AuthRequest, res, next) => {
+router.post('/sadar/students', async (req: AuthRequest, res, next) => {
   try {
     const user = await User.findById(req.user!.userId).lean();
     if (!user || user.role !== 'sadar_mualim') {
