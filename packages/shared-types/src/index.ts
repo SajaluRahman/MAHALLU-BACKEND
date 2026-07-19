@@ -13,6 +13,7 @@ export enum UserRole {
   USTADH = 'ustadh',
   PARENT = 'parent',
   STUDENT = 'student',
+  SADAR_MUALIM = 'sadar_mualim',
 }
 
 export enum MemberStatus {

@@ -236,8 +236,8 @@ export const approveRegistration = async (req: AuthRequest, res: Response) => {
         feePaid: 0,
         feeBalance: 0,
       });
-    } else if (type === RegistrationType.TEACHER) {
-      role = UserRole.USTADH;
+    } else if (type === RegistrationType.TEACHER || type === (RegistrationType as any).SADAR_MUALIM) {
+      role = type === RegistrationType.TEACHER ? UserRole.USTADH : UserRole.SADAR_MUALIM;
 
       await Teacher.create({
         tenantId,

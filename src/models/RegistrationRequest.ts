@@ -4,6 +4,7 @@ export enum RegistrationType {
   MEMBER = 'MEMBER',
   STUDENT = 'STUDENT',
   TEACHER = 'TEACHER',
+  SADAR_MUALIM = 'SADAR_MUALIM',
 }
 
 export enum RegistrationStatus {

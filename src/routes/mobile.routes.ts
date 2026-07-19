@@ -1013,4 +1013,171 @@ router.post('/properties/request', async (req: AuthRequest, res, next) => {
   } catch (e) { next(e); }
 });
 
+// ──────────────────────────────────────────────────
+// SADAR MUALIM & FAMILY STUDENT PORTALS
+// ──────────────────────────────────────────────────
+
+// GET /mobile/sadar/families
+router.get('/sadar/families', async (req: AuthRequest, res, next) => {
+  try {
+    const user = await User.findById(req.user!.userId).lean();
+    if (!user || user.role !== 'sadar_mualim') {
+      return res.status(403).json({ success: false, message: 'Sadar Mualim role required' });
+    }
+
+    const families = await Family.find({ tenantId: req.user!.tenantId, isDeleted: false })
+      .populate('headMemberId', 'name')
+      .lean();
+
+    const formatted = families.map(f => ({
+      _id: f._id,
+      familyCode: f.familyCode,
+      headName: (f.headMemberId as any)?.name || 'Unknown',
+    }));
+
+    res.json({ success: true, data: formatted });
+  } catch (e) { next(e); }
+});
+
+// GET /mobile/sadar/classes
+router.get('/sadar/classes', async (req: AuthRequest, res, next) => {
+  try {
+    const user = await User.findById(req.user!.userId).lean();
+    if (!user || user.role !== 'sadar_mualim') {
+      return res.status(403).json({ success: false, message: 'Sadar Mualim role required' });
+    }
+
+    const { Class } = await import('../models/Class');
+    const classes = await Class.find({ tenantId: req.user!.tenantId }).lean();
+    res.json({ success: true, data: classes });
+  } catch (e) { next(e); }
+});
+
+// POST /mobile/sadar/students
+router.post('/mobile/sadar/students', async (req: AuthRequest, res, next) => {
+  try {
+    const user = await User.findById(req.user!.userId).lean();
+    if (!user || user.role !== 'sadar_mualim') {
+      return res.status(403).json({ success: false, message: 'Sadar Mualim role required' });
+    }
+
+    const { name, admissionNo, classId, familyId } = req.body;
+    if (!name || !classId || !familyId) {
+      return res.status(400).json({ success: false, message: 'Name, Class, and Family are required' });
+    }
+
+    const family = await Family.findOne({ _id: familyId, tenantId: req.user!.tenantId });
+    if (!family) return res.status(404).json({ success: false, message: 'Family not found' });
+
+    // 1. Create student Member profile
+    const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
+    const studentMember = await Member.create({
+      tenantId: req.user!.tenantId,
+      memberId: `MHL-${new Date().getFullYear()}-${randomStr}`,
+      name,
+      familyId: family._id,
+      gender: 'male',
+      status: 'active',
+    });
+
+    // 2. Add member to family
+    family.members.push({
+      memberId: studentMember._id,
+      relationship: 'Child/Dependent',
+      isHead: false
+    });
+    await family.save();
+
+    // 3. Create Student profile
+    const newStudent = await Student.create({
+      tenantId: req.user!.tenantId,
+      memberId: studentMember._id,
+      admissionNo: admissionNo || `ADM-${new Date().getFullYear()}-${randomStr}`,
+      admissionDate: new Date(),
+      classId,
+      madrasaId: family.tenantId,
+      guardianId: family.headMemberId,
+      status: 'active',
+    });
+
+    // 4. Register in Class collection students list
+    const { Class } = await import('../models/Class');
+    await Class.findByIdAndUpdate(classId, { $addToSet: { students: newStudent._id } });
+
+    res.status(201).json({ success: true, data: newStudent });
+  } catch (e) { next(e); }
+});
+
+// GET /mobile/member/family-students
+router.get('/member/family-students', async (req: AuthRequest, res, next) => {
+  try {
+    const user = await User.findById(req.user!.userId).lean();
+    if (!user || !user.memberId) {
+      return res.status(403).json({ success: false, message: 'Member profile required' });
+    }
+
+    const member = await Member.findById(user.memberId).lean();
+    if (!member || !member.familyId) return res.json({ success: true, data: [] });
+
+    const family = await Family.findById(member.familyId).lean();
+    if (!family) return res.json({ success: true, data: [] });
+
+    const memberIds = family.members.map(m => m.memberId);
+    const students = await Student.find({
+      tenantId: req.user!.tenantId,
+      memberId: { $in: memberIds },
+      isDeleted: { $ne: true }
+    })
+      .populate({ path: 'memberId', select: 'name photo phone gender', options: { strictPopulate: false } })
+      .populate({ path: 'classId', select: 'name level', options: { strictPopulate: false } })
+      .lean();
+
+    const aggregated = [];
+    for (const student of students) {
+      const attendanceLogs = await Attendance.find({
+        tenantId: req.user!.tenantId,
+        entityId: student._id
+      }).select('date status').sort({ date: -1 }).lean();
+
+      const total = attendanceLogs.length;
+      const present = attendanceLogs.filter(a => a.status === 'present').length;
+      const percentage = total > 0 ? Math.round((present / total) * 100) : 100;
+
+      const homeworks = student.classId
+        ? await Homework.find({
+            tenantId: req.user!.tenantId,
+            classId: (student.classId as any)._id
+          }).sort({ dueDate: -1 }).limit(10).lean()
+        : [];
+
+      const exams = student.classId
+        ? await Exam.find({
+            tenantId: req.user!.tenantId,
+            classId: (student.classId as any)._id
+          }).sort({ date: -1 }).limit(10).lean()
+        : [];
+
+      const notices = await Notification.find({
+        tenantId: req.user!.tenantId,
+        channel: 'push',
+      }).sort({ createdAt: -1 }).limit(5).lean();
+
+      aggregated.push({
+        studentInfo: student,
+        attendance: {
+          total,
+          present,
+          percentage,
+          logs: attendanceLogs
+        },
+        homeworks,
+        exams,
+        notices
+      });
+    }
+
+    res.json({ success: true, data: aggregated });
+  } catch (e) { next(e); }
+});
+
 export default router;
