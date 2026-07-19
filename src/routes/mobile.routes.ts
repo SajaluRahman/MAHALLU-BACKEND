@@ -1109,7 +1109,6 @@ router.post('/sadar/students', async (req: AuthRequest, res, next) => {
     });
 
     // 4. Register in Class collection students list
-    const ClassModel = mongoose.model('Class');
     await ClassModel.findByIdAndUpdate(classId, { $addToSet: { students: newStudent._id } });
 
     res.status(201).json({ success: true, data: newStudent });
