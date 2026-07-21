@@ -19,7 +19,7 @@ export const notificationRoutes = (() => {
       if (io) {
         io.to(`tenant-${req.user!.tenantId}`).emit('new-notice', {
           title: n.title,
-          body: n.message || n.body || 'You have a new notice announcement.',
+          body: (n as any).message || n.body || 'You have a new notice announcement.',
         });
       }
       res.status(201).json({ success: true, data: n });

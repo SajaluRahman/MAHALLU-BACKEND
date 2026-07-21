@@ -5,5 +5,9 @@ export interface UserDocument extends Omit<IUser, '_id' | 'tenantId' | 'memberId
     memberId?: mongoose.Types.ObjectId;
     comparePassword(candidatePassword: string): Promise<boolean>;
 }
-export declare const User: mongoose.Model<UserDocument, {}, {}, {}, any, any>;
+export declare const User: mongoose.Model<UserDocument, {}, {}, {}, Document<unknown, {}, UserDocument, {}, {}> & UserDocument & Required<{
+    _id: mongoose.Types.ObjectId;
+}> & {
+    __v: number;
+}, any>;
 //# sourceMappingURL=User.d.ts.map

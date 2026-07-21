@@ -11,5 +11,9 @@ export interface TransactionDocument extends Document {
     createdAt: Date;
     updatedAt: Date;
 }
-export declare const Transaction: mongoose.Model<TransactionDocument, {}, {}, {}, any, any>;
+export declare const Transaction: mongoose.Model<TransactionDocument, {}, {}, {}, Document<unknown, {}, TransactionDocument, {}, {}> & TransactionDocument & Required<{
+    _id: mongoose.Types.ObjectId;
+}> & {
+    __v: number;
+}, any>;
 //# sourceMappingURL=Transaction.d.ts.map

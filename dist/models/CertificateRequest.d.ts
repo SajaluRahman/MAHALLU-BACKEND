@@ -5,11 +5,16 @@ export interface CertificateRequestDocument extends Document {
     requestedBy: mongoose.Types.ObjectId;
     type: CertificateType;
     purpose: string;
+    details?: Record<string, any>;
     status: 'PENDING' | 'APPROVED' | 'REJECTED';
     certificateId?: mongoose.Types.ObjectId;
     notes?: string;
     createdAt: Date;
     updatedAt: Date;
 }
-export declare const CertificateRequest: mongoose.Model<CertificateRequestDocument, {}, {}, {}, any, any>;
+export declare const CertificateRequest: mongoose.Model<CertificateRequestDocument, {}, {}, {}, Document<unknown, {}, CertificateRequestDocument, {}, {}> & CertificateRequestDocument & Required<{
+    _id: mongoose.Types.ObjectId;
+}> & {
+    __v: number;
+}, any>;
 //# sourceMappingURL=CertificateRequest.d.ts.map

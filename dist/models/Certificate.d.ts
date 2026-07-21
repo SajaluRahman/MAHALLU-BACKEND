@@ -11,7 +11,20 @@ export interface CertificateDocument extends Document {
     pdfUrl?: string;
     publicId?: string;
     data: Record<string, unknown>;
+    eSign?: {
+        isSigned: boolean;
+        signedBy?: string;
+        designation?: string;
+    };
+    eStamp?: {
+        isStamped: boolean;
+        sealTitle?: string;
+    };
     isRevoked: boolean;
 }
-export declare const Certificate: mongoose.Model<CertificateDocument, {}, {}, {}, any, any>;
+export declare const Certificate: mongoose.Model<CertificateDocument, {}, {}, {}, Document<unknown, {}, CertificateDocument, {}, {}> & CertificateDocument & Required<{
+    _id: mongoose.Types.ObjectId;
+}> & {
+    __v: number;
+}, any>;
 //# sourceMappingURL=Certificate.d.ts.map

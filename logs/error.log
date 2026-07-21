@@ -3393,3 +3393,59 @@ Use mongoose.model(name, schema)
 2026-07-17 17:09:23 [error]: AggregateError
     at internalConnectMultiple (node:net:1194:18)
     at afterConnectMultiple (node:net:1784:7)
+2026-07-21 19:27:37 [error]: AggregateError
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 19:27:38 [error]: AggregateError
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 19:27:38 [error]: AggregateError
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 19:27:39 [error]: AggregateError
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 19:27:42 [error]: AggregateError
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 19:27:42 [error]: AggregateError
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 19:27:43 [error]: AggregateError
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 19:27:43 [error]: AggregateError
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 19:55:41 [error]: AggregateError
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 19:55:41 [error]: AggregateError
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 19:55:42 [error]: AggregateError
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 19:55:42 [error]: AggregateError
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 19:55:47 [error]: Error: secretOrPrivateKey must have a value
+    at Object.module.exports [as sign] (/Users/sajalurahman/Desktop/mahallu/node_modules/jsonwebtoken/sign.js:111:20)
+    at Function.generateAccessToken (/Users/sajalurahman/Desktop/mahallu/apps/backend/src/services/auth.service.ts:14:16)
+    at Function.login (/Users/sajalurahman/Desktop/mahallu/apps/backend/src/services/auth.service.ts:66:30)
+    at async login (/Users/sajalurahman/Desktop/mahallu/apps/backend/src/controllers/auth.controller.ts:16:32)
+2026-07-21 19:55:49 [error]: Error: secretOrPrivateKey must have a value
+    at Object.module.exports [as sign] (/Users/sajalurahman/Desktop/mahallu/node_modules/jsonwebtoken/sign.js:111:20)
+    at Function.generateAccessToken (/Users/sajalurahman/Desktop/mahallu/apps/backend/src/services/auth.service.ts:14:16)
+    at Function.login (/Users/sajalurahman/Desktop/mahallu/apps/backend/src/services/auth.service.ts:66:30)
+    at async login (/Users/sajalurahman/Desktop/mahallu/apps/backend/src/controllers/auth.controller.ts:16:32)
+2026-07-21 19:56:15 [error]: Error: secretOrPrivateKey must have a value
+    at Object.module.exports [as sign] (/Users/sajalurahman/Desktop/mahallu/node_modules/jsonwebtoken/sign.js:111:20)
+    at Function.generateAccessToken (/Users/sajalurahman/Desktop/mahallu/apps/backend/src/services/auth.service.ts:14:16)
+    at Function.login (/Users/sajalurahman/Desktop/mahallu/apps/backend/src/services/auth.service.ts:66:30)
+    at async login (/Users/sajalurahman/Desktop/mahallu/apps/backend/src/controllers/auth.controller.ts:16:32)
+2026-07-21 19:56:22 [error]: Error: secretOrPrivateKey must have a value
+    at Object.module.exports [as sign] (/Users/sajalurahman/Desktop/mahallu/node_modules/jsonwebtoken/sign.js:111:20)
+    at Function.generateAccessToken (/Users/sajalurahman/Desktop/mahallu/apps/backend/src/services/auth.service.ts:14:16)
+    at Function.login (/Users/sajalurahman/Desktop/mahallu/apps/backend/src/services/auth.service.ts:66:30)
+    at async login (/Users/sajalurahman/Desktop/mahallu/apps/backend/src/controllers/auth.controller.ts:16:32)

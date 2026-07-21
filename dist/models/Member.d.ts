@@ -6,5 +6,9 @@ export interface MemberDocument extends Omit<IMember, '_id' | 'tenantId' | 'fami
     userId?: mongoose.Types.ObjectId;
     dateOfBirth?: Date;
 }
-export declare const Member: mongoose.Model<MemberDocument, {}, {}, {}, any, any>;
+export declare const Member: mongoose.Model<MemberDocument, {}, {}, {}, Document<unknown, {}, MemberDocument, {}, {}> & MemberDocument & Required<{
+    _id: mongoose.Types.ObjectId;
+}> & {
+    __v: number;
+}, any>;
 //# sourceMappingURL=Member.d.ts.map

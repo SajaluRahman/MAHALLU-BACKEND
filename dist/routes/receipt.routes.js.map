@@ -1,1 +1,1 @@
-{"version":3,"file":"receipt.routes.js","sourceRoot":"","sources":["../../src/routes/receipt.routes.ts"],"names":[],"mappings":";;AACA,6CAA6C;AAC7C,kBAAe,0BAAa,CAAC"}
+{"version":3,"file":"receipt.routes.js","sourceRoot":"","sources":["../../src/routes/receipt.routes.ts"],"names":[],"mappings":";;AACA,6CAA6C;kBAC9B,0BAAa"}

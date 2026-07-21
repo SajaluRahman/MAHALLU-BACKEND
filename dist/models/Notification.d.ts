@@ -14,5 +14,9 @@ export interface NotificationDocument extends Document {
     sentAt?: Date;
     error?: string;
 }
-export declare const Notification: mongoose.Model<NotificationDocument, {}, {}, {}, any, any>;
+export declare const Notification: mongoose.Model<NotificationDocument, {}, {}, {}, Document<unknown, {}, NotificationDocument, {}, {}> & NotificationDocument & Required<{
+    _id: mongoose.Types.ObjectId;
+}> & {
+    __v: number;
+}, any>;
 //# sourceMappingURL=Notification.d.ts.map

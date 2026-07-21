@@ -41,6 +41,7 @@ const CertificateRequestSchema = new mongoose_1.Schema({
     requestedBy: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Member', required: true },
     type: { type: String, enum: Object.values(shared_types_1.CertificateType), required: true },
     purpose: { type: String, required: true },
+    details: { type: mongoose_1.Schema.Types.Mixed, default: {} },
     status: { type: String, enum: ['PENDING', 'APPROVED', 'REJECTED'], default: 'PENDING' },
     certificateId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Certificate' },
     notes: { type: String },

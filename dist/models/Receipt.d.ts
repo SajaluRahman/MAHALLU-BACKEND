@@ -8,5 +8,9 @@ export interface ReceiptDocument extends Document {
     printedAt?: Date;
     sentVia?: string[];
 }
-export declare const Receipt: mongoose.Model<ReceiptDocument, {}, {}, {}, any, any>;
+export declare const Receipt: mongoose.Model<ReceiptDocument, {}, {}, {}, Document<unknown, {}, ReceiptDocument, {}, {}> & ReceiptDocument & Required<{
+    _id: mongoose.Types.ObjectId;
+}> & {
+    __v: number;
+}, any>;
 //# sourceMappingURL=Receipt.d.ts.map

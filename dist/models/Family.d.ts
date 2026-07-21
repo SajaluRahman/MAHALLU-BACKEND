@@ -33,5 +33,9 @@ export interface FamilyDocument extends Document {
     isDeleted: boolean;
     deletedAt?: Date;
 }
-export declare const Family: mongoose.Model<FamilyDocument, {}, {}, {}, any, any>;
+export declare const Family: mongoose.Model<FamilyDocument, {}, {}, {}, Document<unknown, {}, FamilyDocument, {}, {}> & FamilyDocument & Required<{
+    _id: mongoose.Types.ObjectId;
+}> & {
+    __v: number;
+}, any>;
 //# sourceMappingURL=Family.d.ts.map

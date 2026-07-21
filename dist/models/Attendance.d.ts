@@ -11,5 +11,9 @@ export interface AttendanceDocument extends Document {
     markedById: mongoose.Types.ObjectId;
     note?: string;
 }
-export declare const Attendance: mongoose.Model<AttendanceDocument, {}, {}, {}, any, any>;
+export declare const Attendance: mongoose.Model<AttendanceDocument, {}, {}, {}, Document<unknown, {}, AttendanceDocument, {}, {}> & AttendanceDocument & Required<{
+    _id: mongoose.Types.ObjectId;
+}> & {
+    __v: number;
+}, any>;
 //# sourceMappingURL=Attendance.d.ts.map

@@ -23,13 +23,22 @@ r.get('/:id', (0, auth_1.authorize)(shared_config_1.PERMISSIONS.EVENT_VIEW), asy
 catch (e) {
     next(e);
 } });
-r.post('/', (0, auth_1.authorize)(shared_config_1.PERMISSIONS.EVENT_CREATE), async (req, res, next) => { try {
-    const e = await Event_1.Event.create({ ...req.body, tenantId: req.user.tenantId });
-    res.status(201).json({ success: true, data: e });
-}
-catch (e) {
-    next(e);
-} });
+r.post('/', (0, auth_1.authorize)(shared_config_1.PERMISSIONS.EVENT_CREATE), async (req, res, next) => {
+    try {
+        const e = await Event_1.Event.create({ ...req.body, tenantId: req.user.tenantId });
+        const io = req.app.get('io');
+        if (io) {
+            io.to(`tenant-${req.user.tenantId}`).emit('new-event', {
+                title: `New Event: ${e.title}`,
+                body: e.description || 'A new event has been scheduled.',
+            });
+        }
+        res.status(201).json({ success: true, data: e });
+    }
+    catch (e) {
+        next(e);
+    }
+});
 r.put('/:id', (0, auth_1.authorize)(shared_config_1.PERMISSIONS.EVENT_UPDATE), async (req, res, next) => { try {
     const e = await Event_1.Event.findOneAndUpdate({ _id: req.params.id, tenantId: req.user.tenantId }, { $set: req.body }, { new: true });
     res.json({ success: true, data: e });

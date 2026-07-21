@@ -1,1 +1,1 @@
-{"version":3,"file":"receipt.routes.d.ts","sourceRoot":"","sources":["../../src/routes/receipt.routes.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,aAAa,EAAE,MAAM,cAAc,CAAC;AAC7C,eAAe,aAAa,CAAC"}
+{"version":3,"file":"receipt.routes.d.ts","sourceRoot":"","sources":["../../src/routes/receipt.routes.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,aAAa,EAAE,MAAM,cAAc,CAAC;eAC9B,aAAa"}

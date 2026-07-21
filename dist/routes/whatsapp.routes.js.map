@@ -1,1 +1,1 @@
-{"version":3,"file":"whatsapp.routes.js","sourceRoot":"","sources":["../../src/routes/whatsapp.routes.ts"],"names":[],"mappings":";;AACA,6CAA8C;AAC9C,kBAAe,2BAAc,CAAC"}
+{"version":3,"file":"whatsapp.routes.js","sourceRoot":"","sources":["../../src/routes/whatsapp.routes.ts"],"names":[],"mappings":";;AACA,6CAA8C;kBAC/B,2BAAc"}

@@ -10,5 +10,9 @@ export interface SubscriptionDocument extends Document {
     lastPaidAt?: Date;
     paymentId?: mongoose.Types.ObjectId;
 }
-export declare const Subscription: mongoose.Model<SubscriptionDocument, {}, {}, {}, any, any>;
+export declare const Subscription: mongoose.Model<SubscriptionDocument, {}, {}, {}, Document<unknown, {}, SubscriptionDocument, {}, {}> & SubscriptionDocument & Required<{
+    _id: mongoose.Types.ObjectId;
+}> & {
+    __v: number;
+}, any>;
 //# sourceMappingURL=Subscription.d.ts.map

@@ -18,5 +18,9 @@ export interface PropertyDocument extends Document {
     }>;
     currentLeaseId?: mongoose.Types.ObjectId;
 }
-export declare const Property: mongoose.Model<PropertyDocument, {}, {}, {}, any, any>;
+export declare const Property: mongoose.Model<PropertyDocument, {}, {}, {}, Document<unknown, {}, PropertyDocument, {}, {}> & PropertyDocument & Required<{
+    _id: mongoose.Types.ObjectId;
+}> & {
+    __v: number;
+}, any>;
 //# sourceMappingURL=Property.d.ts.map

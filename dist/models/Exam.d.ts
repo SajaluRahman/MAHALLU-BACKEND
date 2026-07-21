@@ -23,5 +23,9 @@ export interface ExamDocument extends Document {
     }>;
     isPublished: boolean;
 }
-export declare const Exam: mongoose.Model<ExamDocument, {}, {}, {}, any, any>;
+export declare const Exam: mongoose.Model<ExamDocument, {}, {}, {}, Document<unknown, {}, ExamDocument, {}, {}> & ExamDocument & Required<{
+    _id: mongoose.Types.ObjectId;
+}> & {
+    __v: number;
+}, any>;
 //# sourceMappingURL=Exam.d.ts.map

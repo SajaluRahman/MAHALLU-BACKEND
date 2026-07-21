@@ -29,5 +29,9 @@ export interface EventDocument extends Document {
         role: string;
     }>;
 }
-export declare const Event: mongoose.Model<EventDocument, {}, {}, {}, any, any>;
+export declare const Event: mongoose.Model<EventDocument, {}, {}, {}, Document<unknown, {}, EventDocument, {}, {}> & EventDocument & Required<{
+    _id: mongoose.Types.ObjectId;
+}> & {
+    __v: number;
+}, any>;
 //# sourceMappingURL=Event.d.ts.map

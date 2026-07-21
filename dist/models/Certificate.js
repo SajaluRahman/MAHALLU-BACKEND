@@ -47,6 +47,15 @@ const CertificateSchema = new mongoose_1.Schema({
     pdfUrl: String,
     publicId: String,
     data: { type: mongoose_1.Schema.Types.Mixed, default: {} },
+    eSign: {
+        isSigned: { type: Boolean, default: true },
+        signedBy: { type: String, default: 'Secretary, Mahallu Committee' },
+        designation: { type: String, default: 'Authorized Signatory' },
+    },
+    eStamp: {
+        isStamped: { type: Boolean, default: true },
+        sealTitle: { type: String, default: 'Official Seal of Mahallu' },
+    },
     isRevoked: { type: Boolean, default: false },
 }, { timestamps: true });
 CertificateSchema.index({ tenantId: 1, certificateNo: 1 }, { unique: true });

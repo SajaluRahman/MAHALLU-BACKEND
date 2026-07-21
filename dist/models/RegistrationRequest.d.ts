@@ -19,5 +19,9 @@ export interface RegistrationRequestDocument extends Document {
     createdAt: Date;
     updatedAt: Date;
 }
-export declare const RegistrationRequest: mongoose.Model<RegistrationRequestDocument, {}, {}, {}, any, any>;
+export declare const RegistrationRequest: mongoose.Model<RegistrationRequestDocument, {}, {}, {}, Document<unknown, {}, RegistrationRequestDocument, {}, {}> & RegistrationRequestDocument & Required<{
+    _id: mongoose.Types.ObjectId;
+}> & {
+    __v: number;
+}, any>;
 //# sourceMappingURL=RegistrationRequest.d.ts.map

@@ -11208,3 +11208,100 @@ Use mongoose.model(name, schema)
 2026-07-17 17:09:23 [info]: 🚀 Mahallu ERP Backend running on port 5000
 2026-07-17 17:09:23 [info]: 📡 Environment: development
 2026-07-17 17:09:23 [info]: 🌐 API Base: http://localhost:5000/api/v1
+2026-07-21 19:27:37 [info]: ✅ MongoDB connected: localhost
+2026-07-21 19:27:37 [error]: AggregateError
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 19:27:38 [warn]: Redis reconnecting...
+2026-07-21 19:27:38 [error]: AggregateError
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 19:27:38 [warn]: Redis reconnecting...
+2026-07-21 19:27:38 [error]: AggregateError
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 19:27:39 [warn]: Redis reconnecting...
+2026-07-21 19:27:39 [error]: AggregateError
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 19:27:39 [warn]: AggregateError
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 19:27:39 [info]: ✅ Cron jobs initialized
+2026-07-21 19:27:39 [info]: 🚀 Mahallu ERP Backend running on port 5000
+2026-07-21 19:27:39 [info]: 📡 Environment: undefined
+2026-07-21 19:27:39 [info]: 🌐 API Base: http://localhost:5000/api/v1
+2026-07-21 19:27:42 [info]: ✅ MongoDB connected: localhost
+2026-07-21 19:27:42 [error]: AggregateError
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 19:27:42 [warn]: Redis reconnecting...
+2026-07-21 19:27:42 [error]: AggregateError
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 19:27:43 [warn]: Redis reconnecting...
+2026-07-21 19:27:43 [error]: AggregateError
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 19:27:43 [warn]: Redis reconnecting...
+2026-07-21 19:27:43 [error]: AggregateError
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 19:27:43 [warn]: AggregateError
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 19:27:44 [info]: ✅ Cron jobs initialized
+2026-07-21 19:27:44 [info]: 🚀 Mahallu ERP Backend running on port 5000
+2026-07-21 19:27:44 [info]: 📡 Environment: undefined
+2026-07-21 19:27:44 [info]: 🌐 API Base: http://localhost:5000/api/v1
+2026-07-21 19:55:41 [info]: ✅ MongoDB connected: localhost
+2026-07-21 19:55:41 [error]: AggregateError
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 19:55:41 [warn]: Redis reconnecting...
+2026-07-21 19:55:41 [error]: AggregateError
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 19:55:42 [warn]: Redis reconnecting...
+2026-07-21 19:55:42 [error]: AggregateError
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 19:55:42 [warn]: Redis reconnecting...
+2026-07-21 19:55:42 [error]: AggregateError
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 19:55:42 [warn]: AggregateError
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 19:55:42 [info]: ✅ Cron jobs initialized
+2026-07-21 19:55:42 [info]: 🚀 Mahallu ERP Backend running on port 5000
+2026-07-21 19:55:42 [info]: 📡 Environment: undefined
+2026-07-21 19:55:42 [info]: 🌐 API Base: http://localhost:5000/api/v1
+2026-07-21 19:55:46 [debug]: POST /api/v1/auth/login - IP: ::1
+2026-07-21 19:55:47 [error]: Error: secretOrPrivateKey must have a value
+    at Object.module.exports [as sign] (/Users/sajalurahman/Desktop/mahallu/node_modules/jsonwebtoken/sign.js:111:20)
+    at Function.generateAccessToken (/Users/sajalurahman/Desktop/mahallu/apps/backend/src/services/auth.service.ts:14:16)
+    at Function.login (/Users/sajalurahman/Desktop/mahallu/apps/backend/src/services/auth.service.ts:66:30)
+    at async login (/Users/sajalurahman/Desktop/mahallu/apps/backend/src/controllers/auth.controller.ts:16:32)
+2026-07-21 19:55:47 [http]: ::1 - - [21/Jul/2026:14:25:47 +0000] "POST /api/v1/auth/login HTTP/1.1" 500 66 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36"
+2026-07-21 19:55:49 [debug]: POST /api/v1/auth/login - IP: ::1
+2026-07-21 19:55:49 [error]: Error: secretOrPrivateKey must have a value
+    at Object.module.exports [as sign] (/Users/sajalurahman/Desktop/mahallu/node_modules/jsonwebtoken/sign.js:111:20)
+    at Function.generateAccessToken (/Users/sajalurahman/Desktop/mahallu/apps/backend/src/services/auth.service.ts:14:16)
+    at Function.login (/Users/sajalurahman/Desktop/mahallu/apps/backend/src/services/auth.service.ts:66:30)
+    at async login (/Users/sajalurahman/Desktop/mahallu/apps/backend/src/controllers/auth.controller.ts:16:32)
+2026-07-21 19:55:49 [http]: ::1 - - [21/Jul/2026:14:25:49 +0000] "POST /api/v1/auth/login HTTP/1.1" 500 66 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36"
+2026-07-21 19:56:15 [debug]: POST /api/v1/auth/login - IP: ::1
+2026-07-21 19:56:15 [error]: Error: secretOrPrivateKey must have a value
+    at Object.module.exports [as sign] (/Users/sajalurahman/Desktop/mahallu/node_modules/jsonwebtoken/sign.js:111:20)
+    at Function.generateAccessToken (/Users/sajalurahman/Desktop/mahallu/apps/backend/src/services/auth.service.ts:14:16)
+    at Function.login (/Users/sajalurahman/Desktop/mahallu/apps/backend/src/services/auth.service.ts:66:30)
+    at async login (/Users/sajalurahman/Desktop/mahallu/apps/backend/src/controllers/auth.controller.ts:16:32)
+2026-07-21 19:56:15 [http]: ::1 - - [21/Jul/2026:14:26:15 +0000] "POST /api/v1/auth/login HTTP/1.1" 500 66 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36"
+2026-07-21 19:56:22 [debug]: POST /api/v1/auth/login - IP: ::1
+2026-07-21 19:56:22 [error]: Error: secretOrPrivateKey must have a value
+    at Object.module.exports [as sign] (/Users/sajalurahman/Desktop/mahallu/node_modules/jsonwebtoken/sign.js:111:20)
+    at Function.generateAccessToken (/Users/sajalurahman/Desktop/mahallu/apps/backend/src/services/auth.service.ts:14:16)
+    at Function.login (/Users/sajalurahman/Desktop/mahallu/apps/backend/src/services/auth.service.ts:66:30)
+    at async login (/Users/sajalurahman/Desktop/mahallu/apps/backend/src/controllers/auth.controller.ts:16:32)
+2026-07-21 19:56:22 [http]: ::1 - - [21/Jul/2026:14:26:22 +0000] "POST /api/v1/auth/login HTTP/1.1" 500 66 "http://localhost:3000/" "Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"

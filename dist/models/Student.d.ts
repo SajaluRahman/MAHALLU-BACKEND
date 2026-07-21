@@ -24,5 +24,9 @@ export interface StudentDocument extends Document {
     isDeleted: boolean;
     deletedAt?: Date;
 }
-export declare const Student: mongoose.Model<StudentDocument, {}, {}, {}, any, any>;
+export declare const Student: mongoose.Model<StudentDocument, {}, {}, {}, Document<unknown, {}, StudentDocument, {}, {}> & StudentDocument & Required<{
+    _id: mongoose.Types.ObjectId;
+}> & {
+    __v: number;
+}, any>;
 //# sourceMappingURL=Student.d.ts.map

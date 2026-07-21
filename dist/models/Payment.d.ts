@@ -18,5 +18,9 @@ export interface PaymentDocument extends Document {
     isDeleted: boolean;
     deletedAt?: Date;
 }
-export declare const Payment: mongoose.Model<PaymentDocument, {}, {}, {}, any, any>;
+export declare const Payment: mongoose.Model<PaymentDocument, {}, {}, {}, Document<unknown, {}, PaymentDocument, {}, {}> & PaymentDocument & Required<{
+    _id: mongoose.Types.ObjectId;
+}> & {
+    __v: number;
+}, any>;
 //# sourceMappingURL=Payment.d.ts.map

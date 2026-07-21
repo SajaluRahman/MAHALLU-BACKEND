@@ -15,5 +15,9 @@ export interface ZakatDocument extends Document {
     }>;
     status: 'open' | 'closed';
 }
-export declare const Zakat: mongoose.Model<ZakatDocument, {}, {}, {}, any, any>;
+export declare const Zakat: mongoose.Model<ZakatDocument, {}, {}, {}, Document<unknown, {}, ZakatDocument, {}, {}> & ZakatDocument & Required<{
+    _id: mongoose.Types.ObjectId;
+}> & {
+    __v: number;
+}, any>;
 //# sourceMappingURL=Zakat.d.ts.map

@@ -12,5 +12,9 @@ export interface RentalRequestDocument extends Document {
     createdAt: Date;
     updatedAt: Date;
 }
-export declare const RentalRequest: mongoose.Model<RentalRequestDocument, {}, {}, {}, any, any>;
+export declare const RentalRequest: mongoose.Model<RentalRequestDocument, {}, {}, {}, Document<unknown, {}, RentalRequestDocument, {}, {}> & RentalRequestDocument & Required<{
+    _id: mongoose.Types.ObjectId;
+}> & {
+    __v: number;
+}, any>;
 //# sourceMappingURL=RentalRequest.d.ts.map

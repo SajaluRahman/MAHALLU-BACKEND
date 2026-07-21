@@ -978,7 +978,7 @@ router.post('/certificates/request', async (req, res, next) => {
         const user = await User_1.User.findById(req.user.userId).lean();
         if (!user || !user.memberId)
             return res.status(403).json({ success: false, message: 'Member profile required' });
-        const { type, purpose } = req.body;
+        const { type, purpose, details } = req.body;
         if (!type || !purpose)
             return res.status(400).json({ success: false, message: 'Type and purpose are required' });
         const certReq = await CertificateRequest_1.CertificateRequest.create({
@@ -986,6 +986,7 @@ router.post('/certificates/request', async (req, res, next) => {
             requestedBy: user.memberId,
             type,
             purpose,
+            details: details || {},
             status: 'PENDING'
         });
         res.status(201).json({ success: true, data: certReq });
@@ -1063,6 +1064,50 @@ router.get('/sadar/families', async (req, res, next) => {
         next(e);
     }
 });
+// GET /mobile/sadar/families/:familyId/members
+// Fetch all members of a family with student enrollment status
+router.get('/sadar/families/:familyId/members', async (req, res, next) => {
+    try {
+        const user = await User_1.User.findById(req.user.userId).lean();
+        if (!user || user.role !== 'sadar_mualim') {
+            return res.status(403).json({ success: false, message: 'Sadar Mualim role required' });
+        }
+        const members = await Member_1.Member.find({
+            familyId: req.params.familyId,
+            tenantId: req.user.tenantId,
+            isDeleted: false
+        }).lean();
+        // Check existing student records for enrollment status
+        const memberIds = members.map(m => m._id);
+        const existingStudents = await Student_1.Student.find({
+            memberId: { $in: memberIds },
+            tenantId: req.user.tenantId,
+            status: 'active'
+        }).populate('classId', 'name').lean();
+        const studentMap = new Map();
+        existingStudents.forEach(st => {
+            studentMap.set(st.memberId.toString(), st.classId?.name || 'Enrolled');
+        });
+        const formattedMembers = members.map(m => {
+            const isEnrolled = studentMap.has(m._id.toString());
+            return {
+                _id: m._id,
+                name: m.name,
+                gender: m.gender,
+                relationship: m.relationship || 'Member',
+                phone: m.phone,
+                memberId: m.memberId,
+                dateOfBirth: m.dateOfBirth,
+                isEnrolledStudent: isEnrolled,
+                enrolledClassName: isEnrolled ? studentMap.get(m._id.toString()) : null,
+            };
+        });
+        res.json({ success: true, data: formattedMembers });
+    }
+    catch (e) {
+        next(e);
+    }
+});
 // GET /mobile/sadar/classes
 router.get('/sadar/classes', async (req, res, next) => {
     try {
@@ -1070,8 +1115,8 @@ router.get('/sadar/classes', async (req, res, next) => {
         if (!user || user.role !== 'sadar_mualim') {
             return res.status(403).json({ success: false, message: 'Sadar Mualim role required' });
         }
-        const { Class } = await Promise.resolve().then(() => __importStar(require('../models/Class')));
-        const classes = await Class.find({ tenantId: req.user.tenantId }).lean();
+        const ClassModel = mongoose_1.default.model('Class');
+        const classes = await ClassModel.find({ tenantId: req.user.tenantId }).lean();
         res.json({ success: true, data: classes });
     }
     catch (e) {
@@ -1079,51 +1124,74 @@ router.get('/sadar/classes', async (req, res, next) => {
     }
 });
 // POST /mobile/sadar/students
-router.post('/mobile/sadar/students', async (req, res, next) => {
+router.post('/sadar/students', async (req, res, next) => {
     try {
         const user = await User_1.User.findById(req.user.userId).lean();
         if (!user || user.role !== 'sadar_mualim') {
             return res.status(403).json({ success: false, message: 'Sadar Mualim role required' });
         }
-        const { name, admissionNo, classId, familyId } = req.body;
-        if (!name || !classId || !familyId) {
-            return res.status(400).json({ success: false, message: 'Name, Class, and Family are required' });
+        const { familyId, classId, memberId, name, relationship, gender, admissionNo } = req.body;
+        if (!familyId || !classId) {
+            return res.status(400).json({ success: false, message: 'Family and Class selection are required' });
         }
-        const family = await Family_1.Family.findOne({ _id: familyId, tenantId: req.user.tenantId });
+        const family = await Family_1.Family.findOne({ _id: familyId, tenantId: req.user.tenantId }).populate('headMemberId');
         if (!family)
             return res.status(404).json({ success: false, message: 'Family not found' });
-        // 1. Create student Member profile
+        const ClassModel = mongoose_1.default.model('Class');
+        const classDoc = await ClassModel.findOne({ _id: classId, tenantId: req.user.tenantId });
+        if (!classDoc)
+            return res.status(404).json({ success: false, message: 'Class not found' });
+        const headMember = family.headMemberId;
         const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
-        const studentMember = await Member_1.Member.create({
-            tenantId: req.user.tenantId,
-            memberId: `MHL-${new Date().getFullYear()}-${randomStr}`,
-            name,
-            familyId: family._id,
-            gender: 'male',
-            status: 'active',
-        });
-        // 2. Add member to family
-        family.members.push({
-            memberId: studentMember._id,
-            relationship: 'Child/Dependent',
-            isHead: false
-        });
-        await family.save();
-        // 3. Create Student profile
-        const newStudent = await Student_1.Student.create({
-            tenantId: req.user.tenantId,
-            memberId: studentMember._id,
-            admissionNo: admissionNo || `ADM-${new Date().getFullYear()}-${randomStr}`,
-            admissionDate: new Date(),
-            classId,
-            madrasaId: family.tenantId,
-            guardianId: family.headMemberId,
-            status: 'active',
-        });
-        // 4. Register in Class collection students list
-        const { Class } = await Promise.resolve().then(() => __importStar(require('../models/Class')));
-        await Class.findByIdAndUpdate(classId, { $addToSet: { students: newStudent._id } });
-        res.status(201).json({ success: true, data: newStudent });
+        let targetMemberId = memberId;
+        if (!targetMemberId) {
+            // Create new child Member if not picking existing member
+            if (!name || !name.trim()) {
+                return res.status(400).json({ success: false, message: 'Please select a child or enter a child name' });
+            }
+            const studentMember = await Member_1.Member.create({
+                tenantId: req.user.tenantId,
+                memberId: `MHL-${new Date().getFullYear()}-${randomStr}`,
+                name: name.trim(),
+                phone: headMember?.phone || '0000000000',
+                familyId: family._id,
+                relationship: relationship || 'Child',
+                gender: gender || 'male',
+                status: 'active',
+            });
+            family.members.push({
+                memberId: studentMember._id,
+                relationship: relationship || 'Child',
+                isHead: false
+            });
+            await family.save();
+            targetMemberId = studentMember._id;
+        }
+        // Check if student profile already exists for this member
+        let studentDoc = await Student_1.Student.findOne({ memberId: targetMemberId, tenantId: req.user.tenantId });
+        if (studentDoc) {
+            studentDoc.classId = classId;
+            studentDoc.status = 'active';
+            if (admissionNo)
+                studentDoc.admissionNo = admissionNo;
+            await studentDoc.save();
+        }
+        else {
+            studentDoc = await Student_1.Student.create({
+                tenantId: req.user.tenantId,
+                memberId: targetMemberId,
+                admissionNo: admissionNo || `ADM-${new Date().getFullYear()}-${randomStr}`,
+                admissionDate: new Date(),
+                classId,
+                madrasaId: classDoc.madrasaId,
+                guardianId: family.headMemberId,
+                familyId: family._id,
+                status: 'active',
+            });
+        }
+        // Register in Class collection students list
+        await ClassModel.findByIdAndUpdate(classId, { $addToSet: { students: studentDoc._id } });
+        res.status(201).json({ success: true, data: studentDoc });
     }
     catch (e) {
         next(e);

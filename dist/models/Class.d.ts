@@ -15,5 +15,9 @@ export interface ClassDocument extends Document {
     }>;
     academicYear: string;
 }
-export declare const Class: mongoose.Model<ClassDocument, {}, {}, {}, any, any>;
+export declare const Class: mongoose.Model<ClassDocument, {}, {}, {}, Document<unknown, {}, ClassDocument, {}, {}> & ClassDocument & Required<{
+    _id: mongoose.Types.ObjectId;
+}> & {
+    __v: number;
+}, any>;
 //# sourceMappingURL=Class.d.ts.map
