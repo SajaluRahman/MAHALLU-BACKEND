@@ -1,5 +1,6 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth';
+import { Readable } from 'stream';
 import ExcelJS from 'exceljs';
 import bcrypt from 'bcryptjs';
 import { Family, Member, User, ImportExportLog, Tenant } from '../models';
@@ -112,7 +113,7 @@ export class ImportExportController {
   }
 
   /**
-   * Bulk Import Families and Members from Excel / CSV
+   * Bulk Import Families and Members from Excel (.xlsx) / CSV (.csv)
    */
   static async importData(req: AuthRequest, res: Response) {
     try {
@@ -121,12 +122,20 @@ export class ImportExportController {
       }
 
       const tenantId = req.user!.tenantId;
+      const isCsv = req.file.originalname.toLowerCase().endsWith('.csv') || req.file.mimetype === 'text/csv';
+
       const workbook = new ExcelJS.Workbook();
-      await workbook.xlsx.load(req.file.buffer as any);
+
+      if (isCsv) {
+        const stream = Readable.from(req.file.buffer);
+        await workbook.csv.read(stream);
+      } else {
+        await workbook.xlsx.load(req.file.buffer as any);
+      }
 
       const sheet = workbook.worksheets[0];
       if (!sheet) {
-        return res.status(400).json({ success: false, message: 'Excel file is empty' });
+        return res.status(400).json({ success: false, message: 'File is empty' });
       }
 
       let totalRecords = 0;
@@ -137,11 +146,11 @@ export class ImportExportController {
       // Maps familyCode -> Family Mongo Document
       const familyMap = new Map<string, any>();
 
-      // Read rows starting after header
-      let startRowIndex = 5;
+      // Automatically detect header row
+      let startRowIndex = 2;
       sheet.eachRow((row, rowNumber) => {
-        const firstVal = String(row.getCell(2).value || '').trim();
-        if (firstVal.includes('Family Code')) {
+        const rowStr = JSON.stringify(row.values).toLowerCase();
+        if (rowStr.includes('family code') || rowStr.includes('member name')) {
           startRowIndex = rowNumber + 1;
         }
       });
@@ -156,19 +165,26 @@ export class ImportExportController {
       for (const item of rowList) {
         const { row, rowNumber } = item;
 
-        const mahalluCode = String(row.getCell(1).value || '').trim();
-        const familyCode = String(row.getCell(2).value || '').trim();
-        const addressLine = String(row.getCell(3).value || '').trim();
-        const wardNo = String(row.getCell(4).value || '').trim();
-        const familyEmail = String(row.getCell(5).value || '').trim().toLowerCase();
-        const familyPassword = String(row.getCell(6).value || '').trim();
-        const memberName = String(row.getCell(7).value || '').trim();
-        const gender = String(row.getCell(8).value || '').trim().toLowerCase();
-        const dob = String(row.getCell(9).value || '').trim();
-        const phone = String(row.getCell(10).value || '').trim();
-        const relationship = String(row.getCell(11).value || '').trim().toLowerCase();
-        const occupation = String(row.getCell(12).value || '').trim();
-        const aadhaar = String(row.getCell(13).value || '').trim();
+        const getVal = (colIdx: number) => {
+          const val = row.getCell(colIdx).value;
+          if (!val) return '';
+          if (typeof val === 'object' && 'text' in val) return String(val.text || '').trim();
+          return String(val).trim();
+        };
+
+        const mahalluCode = getVal(1);
+        const familyCode = getVal(2);
+        const addressLine = getVal(3);
+        const wardNo = getVal(4);
+        const familyEmail = getVal(5).toLowerCase();
+        const familyPassword = getVal(6);
+        const memberName = getVal(7);
+        const gender = getVal(8).toLowerCase();
+        const dob = getVal(9);
+        const phone = getVal(10);
+        const relationship = getVal(11).toLowerCase();
+        const occupation = getVal(12);
+        const aadhaar = getVal(13);
 
         // Skip empty rows
         if (!familyCode && !memberName) continue;

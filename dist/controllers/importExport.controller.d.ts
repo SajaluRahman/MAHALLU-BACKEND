@@ -6,7 +6,7 @@ export declare class ImportExportController {
      */
     static downloadTemplate(req: AuthRequest, res: Response): Promise<void>;
     /**
-     * Bulk Import Families and Members from Excel / CSV
+     * Bulk Import Families and Members from Excel (.xlsx) / CSV (.csv)
      */
     static importData(req: AuthRequest, res: Response): Promise<Response<any, Record<string, any>>>;
     /**
