@@ -37,13 +37,55 @@ export class AuthService {
 
     // Find user by email or phone
     const isEmail = identifier.includes('@');
+    const emailLower = identifier.toLowerCase();
     const query = {
       ...(tenantId && { tenantId }),
-      ...(isEmail ? { email: identifier.toLowerCase() } : { phone: identifier }),
+      ...(isEmail ? { email: emailLower } : { phone: identifier }),
       isDeleted: false,
     };
 
-    const user = await User.findOne(query).select('+passwordHash +refreshTokens').lean<UserDocument>();
+    let user = await User.findOne(query).select('+passwordHash +refreshTokens').lean<UserDocument>();
+
+    // Auto-provision demo accounts if missing on database
+    if (!user && (emailLower === 'madrasa.admin@mahallu.app' || emailLower === 'sadar@mahallu.app' || emailLower === 'admin@mahallu.app')) {
+      let tenantDoc = await Tenant.findOne({ mahalluCode: tenantCode ? tenantCode.toUpperCase() : 'JMM001' });
+      if (!tenantDoc) {
+        tenantDoc = await Tenant.create({
+          name: 'Jamia Masjid Mahallu',
+          mahalluCode: 'JMM001',
+          phone: '+919876543210',
+          email: 'admin@jamaiamasjid.in',
+          address: { line1: 'Main Road', city: 'Kozhikode', district: 'Kozhikode', state: 'Kerala', pincode: '673001', country: 'India' },
+        });
+      }
+
+      let roleToAssign = UserRole.SUPER_ADMIN;
+      let nameToAssign = 'System Administrator';
+      let defaultPass = 'Admin@123456';
+
+      if (emailLower === 'madrasa.admin@mahallu.app') {
+        roleToAssign = UserRole.MADRASA_PRINCIPAL;
+        nameToAssign = 'Madrasa Administrator';
+        defaultPass = 'Madrasa@123456';
+      } else if (emailLower === 'sadar@mahallu.app') {
+        roleToAssign = UserRole.SADAR_MUALIM;
+        nameToAssign = 'Sadar Mualim';
+        defaultPass = 'Sadar@123456';
+      }
+
+      await User.create({
+        tenantId: tenantDoc._id,
+        name: nameToAssign,
+        email: emailLower,
+        phone: emailLower === 'madrasa.admin@mahallu.app' ? '+919876543220' : (emailLower === 'sadar@mahallu.app' ? '+919876543221' : '+919876543210'),
+        role: roleToAssign,
+        passwordHash: defaultPass,
+        isActive: true,
+      });
+
+      user = await User.findOne({ email: emailLower, tenantId: tenantDoc._id }).select('+passwordHash +refreshTokens').lean<UserDocument>();
+    }
+
     if (!user) throw new AppError('Invalid credentials', 401);
     if (!user.isActive) throw new AppError('Account is deactivated', 401);
 

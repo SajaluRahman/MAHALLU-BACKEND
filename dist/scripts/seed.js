@@ -55,7 +55,28 @@ async function seed() {
         isActive: true,
     });
     logger_1.logger.info(`✅ Super Admin created: ${superAdmin.email}`);
-    // 3. Create sample Members
+    // 3. Create Dedicated Madrasa Admin / Principal User
+    const madrasaAdmin = await User_1.User.create({
+        tenantId: tenant._id,
+        name: 'Madrasa Administrator',
+        email: 'madrasa.admin@mahallu.app',
+        phone: '+919876543220',
+        role: shared_types_1.UserRole.MADRASA_PRINCIPAL,
+        passwordHash: 'Madrasa@123456',
+        isActive: true,
+    });
+    // 4. Create Sadar Mualim User
+    const sadarUser = await User_1.User.create({
+        tenantId: tenant._id,
+        name: 'Sadar Mualim',
+        email: 'sadar@mahallu.app',
+        phone: '+919876543221',
+        role: shared_types_1.UserRole.SADAR_MUALIM,
+        passwordHash: 'Sadar@123456',
+        isActive: true,
+    });
+    logger_1.logger.info(`✅ Dedicated Madrasa Admin & Sadar Mualim created: ${madrasaAdmin.email}, ${sadarUser.email}`);
+    // 5. Create sample Members
     const members = await Member_1.Member.create([
         {
             tenantId: tenant._id, memberId: 'MHL-2024-0001',
@@ -80,7 +101,7 @@ async function seed() {
         },
     ]);
     logger_1.logger.info(`✅ ${members.length} Members created`);
-    // 4. Create sample Family
+    // 6. Create sample Family
     const family = await Family_1.Family.create({
         tenantId: tenant._id,
         familyCode: 'FAM-0001',
@@ -104,7 +125,7 @@ async function seed() {
     // Update members with family
     await Member_1.Member.updateMany({ _id: { $in: [members[0]._id, members[1]._id] } }, { familyId: family._id });
     logger_1.logger.info(`✅ Family created: ${family.familyCode}`);
-    // 5. Create Secretary User
+    // 7. Create Secretary User
     await User_1.User.create({
         tenantId: tenant._id,
         name: 'Ibrahim Secretary',
@@ -115,7 +136,7 @@ async function seed() {
         memberId: members[2]._id,
         isActive: true,
     });
-    // 6. Create Treasurer User
+    // 8. Create Treasurer User
     await User_1.User.create({
         tenantId: tenant._id,
         name: 'Kareem Treasurer',
@@ -125,7 +146,7 @@ async function seed() {
         passwordHash: 'Treasurer@123',
         isActive: true,
     });
-    // 7. Create Madrasa
+    // 9. Create Madrasa
     const madrasa = await Madrasa_1.Madrasa.create({
         tenantId: tenant._id,
         name: 'Darul Uloom Madrasa',
@@ -138,11 +159,12 @@ async function seed() {
             country: 'India',
         },
         phone: '+919876543216',
+        principalId: madrasaAdmin._id,
         subjects: ['Quran', 'Tajweed', 'Arabic', 'Fiqh', 'Hadith', 'Aqeedah', 'Malayalam'],
         academicYear: '2024-2025',
     });
     logger_1.logger.info(`✅ Madrasa created: ${madrasa.name}`);
-    // 8. Create Settings
+    // 10. Create Settings
     await Settings_1.Settings.create({
         tenantId: tenant._id,
         general: {
@@ -155,29 +177,29 @@ async function seed() {
         finance: { currency: 'INR', financialYearStart: 'April', autoReceiptEnabled: true },
         theme: { primaryColor: '#059669', mode: 'system', language: 'ml' },
     });
-    // 9. Create Parent User
-    const parentUser = await User_1.User.create({
+    // 11. Create Parent User
+    await User_1.User.create({
         tenantId: tenant._id,
         name: 'Mohammed Rashid (Parent)',
         email: 'parent@mahallu.app',
         phone: '+919876543211',
         role: shared_types_1.UserRole.PARENT,
         passwordHash: 'Parent@123',
-        memberId: members[0]._id, // Head of family FAM-0001
+        memberId: members[0]._id,
         isActive: true,
     });
-    // 10. Create Student and Student User
-    const student = await Student_1.Student.create({
+    // 12. Create Student and Student User
+    await Student_1.Student.create({
         tenantId: tenant._id,
-        memberId: members[2]._id, // Ahmed Haris
+        memberId: members[2]._id,
         admissionNo: 'ADM-2024-001',
         admissionDate: new Date(),
-        classId: new mongoose_1.default.Types.ObjectId(), // Mock class ID
+        classId: new mongoose_1.default.Types.ObjectId(),
         madrasaId: madrasa._id,
-        guardianId: members[0]._id, // Mohammed Rashid is guardian
+        guardianId: members[0]._id,
         status: 'active',
     });
-    const studentUser = await User_1.User.create({
+    await User_1.User.create({
         tenantId: tenant._id,
         name: 'Ahmed Haris (Student)',
         email: 'student@mahallu.app',
@@ -187,17 +209,11 @@ async function seed() {
         memberId: members[2]._id,
         isActive: true,
     });
-    logger_1.logger.info('✅ Settings initialized');
-    logger_1.logger.info('');
     logger_1.logger.info('🎉 Database seeded successfully!');
-    logger_1.logger.info('');
-    logger_1.logger.info('📋 Login Credentials:');
-    logger_1.logger.info(`   Super Admin: ${process.env.SEED_ADMIN_EMAIL || 'admin@mahallu.app'} / ${process.env.SEED_ADMIN_PASSWORD || 'Admin@123456'}`);
-    logger_1.logger.info('   Secretary:   secretary@mahallu.app / Secretary@123');
-    logger_1.logger.info('   Treasurer:   treasurer@mahallu.app / Treasurer@123');
-    logger_1.logger.info('   Parent:      parent@mahallu.app / Parent@123');
-    logger_1.logger.info('   Student:     student@mahallu.app / Student@123');
-    logger_1.logger.info(`   Mahallu Code: JMM001`);
+    logger_1.logger.info('📋 Dedicated Madrasa Credentials:');
+    logger_1.logger.info('   Madrasa Admin: madrasa.admin@mahallu.app / Madrasa@123456');
+    logger_1.logger.info('   Sadar Mualim:   sadar@mahallu.app / Sadar@123456');
+    logger_1.logger.info('   Mahallu Code:  JMM001');
     await mongoose_1.default.disconnect();
     process.exit(0);
 }
