@@ -4,10 +4,10 @@
   "description": "Mahallu ERP Backend API — Node.js + Express + MongoDB",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "nodemon --exec ts-node --transpile-only src/server.ts",
+    "dev": "tsx watch src/server.ts",
     "build": "tsc --skipLibCheck || echo 'Bypassing compiler checks'",
     "start": "node dist/server.js",
-    "seed": "ts-node src/scripts/seed.ts",
+    "seed": "tsx src/scripts/seed.ts",
     "test": "jest --coverage",
     "lint": "eslint src --ext .ts"
   },
@@ -71,6 +71,7 @@
     "jest": "^29.7.0",
     "nodemon": "^3.1.4",
     "supertest": "^7.0.0",
-    "ts-jest": "^29.2.2"
+    "ts-jest": "^29.2.2",
+    "tsx": "^4.19.2"
   }
 }
