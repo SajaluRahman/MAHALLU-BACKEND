@@ -9,25 +9,30 @@ const jobs_1 = require("./jobs");
 const PORT = parseInt(process.env.PORT || '5000', 10);
 async function bootstrap() {
     try {
-        // Connect to databases
+        console.log(`🚀 Bootstrapping Mahallu ERP Backend on port ${PORT}...`);
         // Connect MongoDB
-        await (0, database_1.connectDB)();
+        try {
+            await (0, database_1.connectDB)();
+        }
+        catch (dbErr) {
+            console.error('❌ MongoDB Connection Failure:', dbErr);
+            logger_1.logger.error('MongoDB Connection Failure:', dbErr);
+        }
         // Try Redis, but don't block server startup
         try {
             await (0, redis_1.connectRedis)();
         }
         catch (error) {
+            console.warn('⚠️ Redis unavailable. Continuing without Redis caching.');
             logger_1.logger.warn('Redis unavailable. Continuing without Redis.');
         }
         const app = (0, app_1.createApp)();
         (0, jobs_1.initializeCronJobs)();
-        // const server = app.listen(PORT, () => {
-        //   logger.info(`🚀 Mahallu ERP Backend running on port ${PORT}`);
-        // });
-        const server = app.listen(PORT, () => {
+        const server = app.listen(PORT, '0.0.0.0', () => {
+            console.log(`✅ Mahallu ERP Backend running on 0.0.0.0:${PORT}`);
             logger_1.logger.info(`🚀 Mahallu ERP Backend running on port ${PORT}`);
             logger_1.logger.info(`📡 Environment: ${process.env.NODE_ENV}`);
-            logger_1.logger.info(`🌐 API Base: http://localhost:${PORT}/api/v1`);
+            logger_1.logger.info(`🌐 API Base: http://0.0.0.0:${PORT}/api/v1`);
         });
         // Graceful shutdown
         process.on('SIGTERM', () => {
@@ -38,20 +43,17 @@ async function bootstrap() {
             });
         });
         process.on('unhandledRejection', (err) => {
-            console.error(err);
+            console.error('⚠️ Unhandled Promise Rejection:', err);
             logger_1.logger.error('Unhandled Promise Rejection:', err);
-            server.close(() => process.exit(1));
         });
         process.on('uncaughtException', (err) => {
-            console.error(err);
+            console.error('⚠️ Uncaught Exception:', err);
             logger_1.logger.error('Uncaught Exception:', err);
-            process.exit(1);
         });
     }
     catch (error) {
-        console.error("❌ Failed to start server:");
-        console.error(error);
-        logger_1.logger.error("Failed to start server:", error);
+        console.error('❌ Failed to start server:', error);
+        logger_1.logger.error('Failed to start server:', error);
         process.exit(1);
     }
 }
