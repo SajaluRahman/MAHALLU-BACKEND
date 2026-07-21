@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ImportExportController = void 0;
 const stream_1 = require("stream");
 const exceljs_1 = __importDefault(require("exceljs"));
-const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const models_1 = require("../models");
 const shared_types_1 = require("@mahallu/shared-types");
 class ImportExportController {
@@ -246,18 +245,17 @@ class ImportExportController {
                     if (familyEmail && familyPassword) {
                         let user = await models_1.User.findOne({ tenantId, email: familyEmail });
                         if (!user) {
-                            const hashedPassword = await bcryptjs_1.default.hash(familyPassword, 10);
                             user = await models_1.User.create({
                                 tenantId,
                                 email: familyEmail,
                                 phone,
                                 name: memberName,
-                                password: hashedPassword,
+                                passwordHash: familyPassword,
                                 role: shared_types_1.UserRole.PARENT,
                                 memberId: member._id,
                                 isEmailVerified: true,
                                 isPhoneVerified: true,
-                                status: 'active',
+                                isActive: true,
                             });
                             member.userId = user._id;
                             await member.save();

@@ -265,18 +265,17 @@ export class ImportExportController {
           if (familyEmail && familyPassword) {
             let user = await User.findOne({ tenantId, email: familyEmail });
             if (!user) {
-              const hashedPassword = await bcrypt.hash(familyPassword, 10);
               user = await User.create({
                 tenantId,
                 email: familyEmail,
                 phone,
                 name: memberName,
-                password: hashedPassword,
+                passwordHash: familyPassword,
                 role: UserRole.PARENT,
                 memberId: member._id,
                 isEmailVerified: true,
                 isPhoneVerified: true,
-                status: 'active',
+                isActive: true,
               });
 
               member.userId = user._id;
