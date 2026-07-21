@@ -2,110 +2,122 @@
 // MAHALLU ERP — Shared Types & Interfaces
 // ============================================================
 
-// ---- Enums ----
+// ---- Enums / Const Objects (Node 24 Strip-Types Compatible) ----
 
-export enum UserRole {
-  SUPER_ADMIN = 'super_admin',
-  SECRETARY = 'secretary',
-  TREASURER = 'treasurer',
-  IMAM = 'imam',
-  MADRASA_PRINCIPAL = 'madrasa_principal',
-  USTADH = 'ustadh',
-  PARENT = 'parent',
-  STUDENT = 'student',
-  SADAR_MUALIM = 'sadar_mualim',
-}
+export const UserRole = {
+  SUPER_ADMIN: 'super_admin',
+  SECRETARY: 'secretary',
+  TREASURER: 'treasurer',
+  IMAM: 'imam',
+  MADRASA_PRINCIPAL: 'madrasa_principal',
+  USTADH: 'ustadh',
+  PARENT: 'parent',
+  STUDENT: 'student',
+  SADAR_MUALIM: 'sadar_mualim',
+} as const;
+export type UserRole = typeof UserRole[keyof typeof UserRole];
 
-export enum MemberStatus {
-  ACTIVE = 'active',
-  INACTIVE = 'inactive',
-  DECEASED = 'deceased',
-  MIGRATED = 'migrated',
-}
+export const MemberStatus = {
+  ACTIVE: 'active',
+  INACTIVE: 'inactive',
+  DECEASED: 'deceased',
+  MIGRATED: 'migrated',
+} as const;
+export type MemberStatus = typeof MemberStatus[keyof typeof MemberStatus];
 
-export enum PaymentType {
-  DONATION = 'donation',
-  SUBSCRIPTION = 'subscription',
-  MADRASA_FEE = 'madrasa_fee',
-  RENTAL = 'rental',
-  ZAKAT = 'zakat',
-  EVENT = 'event',
-  SALARY = 'salary',
-  MAINTENANCE = 'maintenance',
-}
+export const PaymentType = {
+  DONATION: 'donation',
+  SUBSCRIPTION: 'subscription',
+  MADRASA_FEE: 'madrasa_fee',
+  RENTAL: 'rental',
+  ZAKAT: 'zakat',
+  EVENT: 'event',
+  SALARY: 'salary',
+  MAINTENANCE: 'maintenance',
+} as const;
+export type PaymentType = typeof PaymentType[keyof typeof PaymentType];
 
-export enum PaymentStatus {
-  PENDING = 'pending',
-  SUCCESS = 'success',
-  FAILED = 'failed',
-  REFUNDED = 'refunded',
-}
+export const PaymentStatus = {
+  PENDING: 'pending',
+  SUCCESS: 'success',
+  FAILED: 'failed',
+  REFUNDED: 'refunded',
+} as const;
+export type PaymentStatus = typeof PaymentStatus[keyof typeof PaymentStatus];
 
-export enum PaymentGateway {
-  RAZORPAY = 'razorpay',
-  UPI = 'upi',
-  CASH = 'cash',
-  BANK_TRANSFER = 'bank_transfer',
-}
+export const PaymentGateway = {
+  RAZORPAY: 'razorpay',
+  UPI: 'upi',
+  CASH: 'cash',
+  BANK_TRANSFER: 'bank_transfer',
+} as const;
+export type PaymentGateway = typeof PaymentGateway[keyof typeof PaymentGateway];
 
-export enum CertificateType {
-  RESIDENCE = 'residence',
-  MEMBERSHIP = 'membership',
-  NIKAH = 'nikah',
-  STUDENT = 'student',
-  COMPLETION = 'completion',
-  TRANSFER = 'transfer',
-  DEATH = 'death',
-  MARRIAGE_CERTIFICATE = 'marriage_certificate',
-  MARRIAGE_CLEARANCE = 'marriage_clearance',
-  PANCHAYATH_LETTER = 'panchayath_letter',
-  VILLAGE_LETTER = 'village_letter',
-  OTHER_ORG_LETTER = 'other_org_letter',
-  CASTE_CERTIFICATE = 'caste_certificate',
-  NOC = 'noc',
-}
+export const CertificateType = {
+  RESIDENCE: 'residence',
+  MEMBERSHIP: 'membership',
+  NIKAH: 'nikah',
+  STUDENT: 'student',
+  COMPLETION: 'completion',
+  TRANSFER: 'transfer',
+  DEATH: 'death',
+  MARRIAGE_CERTIFICATE: 'marriage_certificate',
+  MARRIAGE_CLEARANCE: 'marriage_clearance',
+  PANCHAYATH_LETTER: 'panchayath_letter',
+  VILLAGE_LETTER: 'village_letter',
+  OTHER_ORG_LETTER: 'other_org_letter',
+  CASTE_CERTIFICATE: 'caste_certificate',
+  NOC: 'noc',
+} as const;
+export type CertificateType = typeof CertificateType[keyof typeof CertificateType];
 
-export enum NotificationChannel {
-  WHATSAPP = 'whatsapp',
-  SMS = 'sms',
-  EMAIL = 'email',
-  PUSH = 'push',
-  IN_APP = 'in_app',
-}
+export const NotificationChannel = {
+  WHATSAPP: 'whatsapp',
+  SMS: 'sms',
+  EMAIL: 'email',
+  PUSH: 'push',
+  IN_APP: 'in_app',
+} as const;
+export type NotificationChannel = typeof NotificationChannel[keyof typeof NotificationChannel];
 
-export enum AttendanceStatus {
-  PRESENT = 'present',
-  ABSENT = 'absent',
-  LATE = 'late',
-  EXCUSED = 'excused',
-  HOLIDAY = 'holiday',
-}
+export const AttendanceStatus = {
+  PRESENT: 'present',
+  ABSENT: 'absent',
+  LATE: 'late',
+  EXCUSED: 'excused',
+  HOLIDAY: 'holiday',
+} as const;
+export type AttendanceStatus = typeof AttendanceStatus[keyof typeof AttendanceStatus];
 
-export enum PropertyType {
-  BUILDING = 'building',
-  SHOP = 'shop',
-  RENTAL_HOUSE = 'rental_house',
-  LAND = 'land',
-  EQUIPMENT = 'equipment',
-}
+export const PropertyType = {
+  BUILDING: 'building',
+  SHOP: 'shop',
+  RENTAL_HOUSE: 'rental_house',
+  LAND: 'land',
+  EQUIPMENT: 'equipment',
+} as const;
+export type PropertyType = typeof PropertyType[keyof typeof PropertyType];
 
-export enum LeaseStatus {
-  ACTIVE = 'active',
-  EXPIRED = 'expired',
-  TERMINATED = 'terminated',
-  PENDING = 'pending',
-}
+export const LeaseStatus = {
+  ACTIVE: 'active',
+  EXPIRED: 'expired',
+  TERMINATED: 'terminated',
+  PENDING: 'pending',
+} as const;
+export type LeaseStatus = typeof LeaseStatus[keyof typeof LeaseStatus];
 
-export enum Gender {
-  MALE = 'male',
-  FEMALE = 'female',
-}
+export const Gender = {
+  MALE: 'male',
+  FEMALE: 'female',
+} as const;
+export type Gender = typeof Gender[keyof typeof Gender];
 
-export enum Language {
-  EN = 'en',
-  ML = 'ml',
-  AR = 'ar',
-}
+export const Language = {
+  EN: 'en',
+  ML: 'ml',
+  AR: 'ar',
+} as const;
+export type Language = typeof Language[keyof typeof Language];
 
 // ---- Base Interfaces ----
 
@@ -136,61 +148,102 @@ export interface Address {
 
 export interface FileAttachment {
   url: string;
-  publicId: string;
-  fileName: string;
-  fileType: string;
-  size: number;
+  publicId?: string;
+  fileName?: string;
+  fileType?: string;
+  size?: number;
 }
 
 // ---- Tenant ----
 
 export interface ITenant extends BaseDocument {
   name: string;
-  mahalluCode: string;
+  nameAr?: string;
+  nameML?: string;
+  code: string;
   domain?: string;
-  logo?: string;
   address: Address;
   phone: string;
   email: string;
-  plan: 'free' | 'basic' | 'premium';
+  logo?: FileAttachment;
+  banner?: FileAttachment;
   settings: TenantSettings;
-  isActive: boolean;
+  subscriptionPlan: 'free' | 'basic' | 'pro' | 'enterprise';
+  subscriptionExpiresAt?: string;
+  status: 'active' | 'suspended' | 'pending';
 }
 
 export interface TenantSettings {
-  theme: 'light' | 'dark' | 'system';
-  language: Language;
   currency: string;
   timezone: string;
-  dateFormat: string;
-  prayerTimeMethod: string;
-  iqamahTimes?: Record<string, string>;
+  language: Language;
+  financialYearStartMonth: number;
+  paymentGateways: {
+    razorpay?: { keyId: string; enabled: boolean };
+    upi?: { upiId: string; enabled: boolean };
+  };
+  features: {
+    zakatCalculator: boolean;
+    whatsappNotifications: boolean;
+    smsNotifications: boolean;
+    cemeteryManagement: boolean;
+    propertyRental: boolean;
+    madrasaPortal: boolean;
+  };
 }
 
-// ---- User ----
+// ---- User & Auth ----
 
 export interface IUser extends BaseDocument {
-  tenantId: string;
-  memberId?: string;
-  name: string;
   email: string;
   phone: string;
+  name: string;
   role: UserRole;
-  passwordHash: string;
-  refreshTokens: string[];
+  memberId?: string;
+  avatar?: FileAttachment;
+  isEmailVerified: boolean;
+  isPhoneVerified: boolean;
   twoFactorEnabled: boolean;
-  twoFactorSecret?: string;
-  fcmToken?: string;
-  avatar?: string;
-  isActive: boolean;
   lastLoginAt?: string;
+  status: 'active' | 'inactive' | 'locked';
+}
+
+export interface AuthTokens {
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: number;
+}
+
+export interface LoginResponse {
+  user: IUser;
+  tokens: AuthTokens;
   permissions: string[];
 }
 
-// ---- Member ----
+// ---- Family & Member ----
+
+export interface IFamily extends BaseDocument {
+  familyCode: string;
+  headMemberId: string;
+  headMember?: IMember;
+  members: FamilyMemberRef[];
+  address: Address;
+  wardNo?: string;
+  outstandingBalance: number;
+  qrCode?: string;
+  photo?: FileAttachment;
+  recurringDonationType: 'monthly' | 'yearly' | 'none';
+  recurringDonationAmount: number;
+}
+
+export interface FamilyMemberRef {
+  memberId: string;
+  relationship: string;
+  isHead: boolean;
+}
 
 export interface IMember extends BaseDocument {
-  memberId: string; // e.g., MHL-2024-001
+  memberId: string;
   name: string;
   nameAr?: string;
   nameML?: string;
@@ -211,394 +264,290 @@ export interface IMember extends BaseDocument {
   userId?: string;
 }
 
-// ---- Family ----
-
-export interface IFamily extends BaseDocument {
-  familyCode: string; // e.g., FAM-001
-  headMemberId: string;
-  members: FamilyMember[];
-  address: Address;
-  wardNo?: string;
-  outstandingBalance: number;
-  qrCode?: string;
-  photo?: FileAttachment;
-  recurringDonationType?: 'monthly' | 'yearly' | 'none';
-  recurringDonationAmount?: number;
-}
-
-export interface FamilyMember {
-  memberId: string;
-  relationship: string;
-  isHead: boolean;
-}
-
-// ---- Mosque ----
+// ---- Mosque & Services ----
 
 export interface IMosque extends BaseDocument {
   name: string;
   nameAr?: string;
-  registrationNo?: string;
-  yearEstablished?: number;
+  nameML?: string;
   address: Address;
-  phone?: string;
+  phone: string;
   email?: string;
   imamId?: string;
+  imam?: IMember;
   muazzinId?: string;
-  capacity?: number;
+  muazzin?: IMember;
+  committeeMembers: Array<{ memberId: string; role: string; termEnd?: string }>;
+  capacity: number;
+  prayerTimes: PrayerTimes;
   facilities: string[];
-  committee: CommitteeMember[];
-  assets: MosqueAsset[];
-  bankAccounts: BankAccount[];
+  photos?: FileAttachment[];
 }
 
-export interface CommitteeMember {
-  memberId: string;
-  position: string;
-  startDate: string;
-  endDate?: string;
-}
-
-export interface MosqueAsset {
-  name: string;
-  description?: string;
-  value?: number;
-  purchasedAt?: string;
-  condition: 'good' | 'fair' | 'poor';
-}
-
-export interface BankAccount {
-  bankName: string;
-  accountNo: string;
-  ifscCode: string;
-  accountType: string;
-  balance?: number;
+export interface PrayerTimes {
+  fajr: string;
+  dhuhr: string;
+  asr: string;
+  maghrib: string;
+  isha: string;
+  jummah: string;
+  updatedAt: string;
 }
 
 // ---- Madrasa ----
 
 export interface IMadrasa extends BaseDocument {
   name: string;
-  registrationNo?: string;
-  principalId?: string;
+  nameAr?: string;
+  nameML?: string;
+  code: string;
   address: Address;
-  phone?: string;
-  email?: string;
-  classes: string[];
-  subjects: string[];
+  principalId?: string;
+  principal?: IMember;
   academicYear: string;
-  affiliatedTo?: string;
+  status: 'active' | 'inactive';
 }
 
-// ---- Student ----
-
-export interface IStudent extends BaseDocument {
-  admissionNo: string;
-  memberId: string;
+export interface IClass extends BaseDocument {
   madrasaId: string;
-  classId: string;
-  batchId?: string;
-  guardianId: string;
-  familyId?: string;
-  admissionDate: string;
-  status: 'active' | 'promoted' | 'transferred' | 'withdrawn';
-  qrCode?: string;
-  idCardUrl?: string;
-  hifzProgress?: HifzProgress;
-  tajweedLevel?: string;
-  feePaid: number;
-  feeBalance: number;
+  name: string;
+  level: number;
+  section?: string;
+  medium: 'malayalam' | 'english' | 'arabic';
+  academicYear: string;
+  ustadhId?: string;
+  ustadh?: ITeacher;
+  students: string[];
+  capacity: number;
+  roomNo?: string;
 }
-
-export interface HifzProgress {
-  completedJuz: number[];
-  currentJuz: number;
-  currentSurah: string;
-  lastAssessedAt: string;
-}
-
-// ---- Teacher ----
 
 export interface ITeacher extends BaseDocument {
   memberId: string;
-  madrasaId: string;
+  member?: IMember;
   employeeId: string;
-  subjects: string[];
   qualification: string;
-  experience?: number;
-  salary: number;
+  subjects: string[];
   joiningDate: string;
-  status: 'active' | 'resigned' | 'terminated';
-  documents: FileAttachment[];
-  bankAccount?: BankAccount;
+  salary: number;
+  status: 'active' | 'inactive' | 'on_leave';
 }
 
-// ---- Attendance ----
+export interface IStudent extends BaseDocument {
+  memberId: string;
+  member?: IMember;
+  admissionNo: string;
+  admissionDate: string;
+  classId: string;
+  class?: IClass;
+  madrasaId: string;
+  guardianId: string;
+  guardian?: IMember;
+  familyId?: string;
+  rollNo?: number;
+  status: 'active' | 'transferred' | 'graduated' | 'dropped';
+}
 
 export interface IAttendance extends BaseDocument {
-  entityType: 'student' | 'teacher' | 'member';
-  entityId: string;
-  classId?: string;
+  classId: string;
   date: string;
-  status: AttendanceStatus;
-  markedById: string;
-  note?: string;
+  markedBy: string;
+  records: Array<{
+    studentId: string;
+    status: AttendanceStatus;
+    remarks?: string;
+  }>;
 }
 
-// ---- Payment ----
+// ---- Finance & Payments ----
 
-export interface IPayment extends BaseDocument {
-  paymentNo: string;
-  type: PaymentType;
+export interface ITransaction extends BaseDocument {
+  transactionNo: string;
+  type: 'income' | 'expense';
+  category: string;
+  subCategory?: string;
   amount: number;
-  paidById: string;
-  paidForId?: string;
-  gateway: PaymentGateway;
-  gatewayPaymentId?: string;
-  gatewayOrderId?: string;
+  date: string;
+  paymentType: PaymentType;
+  paymentGateway?: PaymentGateway;
+  gatewayTransactionId?: string;
+  payerId?: string; // MemberId or FamilyId
+  payerType?: 'Member' | 'Family' | 'External';
+  payerName?: string;
+  recipientName?: string;
   status: PaymentStatus;
+  receiptNo?: string;
+  receiptUrl?: string;
   description?: string;
-  receiptId?: string;
-  metadata?: Record<string, unknown>;
+  approvedBy?: string;
+  attachments?: FileAttachment[];
 }
-
-// ---- Donation ----
 
 export interface IDonation extends BaseDocument {
+  donationNo: string;
   donorId?: string;
-  donorName?: string;
+  donorType?: 'Member' | 'Family' | 'Guest';
+  donorName: string;
+  donorPhone?: string;
+  donorEmail?: string;
   amount: number;
-  campaign?: string;
-  purpose?: string;
-  paymentId?: string;
+  category: 'general' | 'building' | 'zakat' | 'sadaka' | 'orphan' | 'ramadan' | 'other';
+  campaignId?: string;
+  paymentGateway?: PaymentGateway;
+  gatewayTransactionId?: string;
+  status: PaymentStatus;
+  receiptNo?: string;
   isAnonymous: boolean;
-  receiptId?: string;
-  status?: 'pending' | 'paid' | 'partial';
-  dueDate?: string;
-}
-
-// ---- Property ----
-
-export interface IProperty extends BaseDocument {
-  propertyCode: string;
-  type: PropertyType;
-  name: string;
-  address: Address;
-  area?: number;
-  rentAmount?: number;
-  status: 'vacant' | 'occupied' | 'maintenance';
-  documents: FileAttachment[];
-  currentLeaseId?: string;
-}
-
-// ---- Zakat ----
-
-export interface IZakat extends BaseDocument {
-  year: number;
-  totalCollected: number;
-  totalDistributed: number;
-  applicants: ZakatApplicant[];
-  status: 'open' | 'closed';
-}
-
-export interface ZakatApplicant {
-  memberId: string;
-  amountRequested: number;
-  amountApproved?: number;
-  status: 'pending' | 'approved' | 'rejected' | 'distributed';
   notes?: string;
 }
 
-// ---- Nikah ----
+export interface ISubscription extends BaseDocument {
+  familyId: string;
+  family?: IFamily;
+  memberId?: string;
+  member?: IMember;
+  feeType: 'monthly_subscription' | 'madrasa_fee' | 'annual_dues';
+  amount: number;
+  dueDate: string;
+  periodMonth: number;
+  periodYear: number;
+  status: 'unpaid' | 'paid' | 'overdue' | 'waived';
+  paidAt?: string;
+  transactionId?: string;
+}
+
+// ---- Properties & Rentals ----
+
+export interface IProperty extends BaseDocument {
+  propertyNo: string;
+  name: string;
+  type: PropertyType;
+  address: Address;
+  monthlyRent: number;
+  depositAmount: number;
+  currentLeaseId?: string;
+  status: 'available' | 'leased' | 'maintenance';
+  photos?: FileAttachment[];
+  documents?: FileAttachment[];
+}
+
+export interface ILease extends BaseDocument {
+  leaseNo: string;
+  propertyId: string;
+  property?: IProperty;
+  tenantMemberId?: string; // Mahallu Member as tenant
+  tenantName: string;
+  tenantPhone: string;
+  tenantAadhaar?: string;
+  startDate: string;
+  endDate: string;
+  monthlyRent: number;
+  depositPaid: number;
+  rentDueDay: number;
+  status: LeaseStatus;
+  agreementDocument?: FileAttachment;
+}
+
+// ---- Special Modules ----
 
 export interface INikah extends BaseDocument {
   nikahNo: string;
-  brideId?: string;
-  brideName: string;
-  brideFatherName: string;
   groomId?: string;
   groomName: string;
-  groomFatherName: string;
-  imamId: string;
-  witnesses: NikahWitness[];
-  mehr: number;
-  mehrCurrency: string;
-  date: string;
-  venue?: string;
-  documents: FileAttachment[];
+  groomPhone?: string;
+  groomAddress: Address;
+  brideId?: string;
+  brideName: string;
+  bridePhone?: string;
+  brideAddress: Address;
+  nikahDate: string;
+  venue: string;
+  maharAmount?: number;
+  maharDetails?: string;
+  officiatorId?: string;
+  officiatorName: string;
+  witnesses: Array<{ name: string; phone?: string; address?: string }>;
   certificateId?: string;
+  status: 'scheduled' | 'completed' | 'cancelled';
+  feePaid: number;
 }
-
-export interface NikahWitness {
-  name: string;
-  memberId?: string;
-  phone?: string;
-  signature?: string;
-}
-
-// ---- Death Record ----
 
 export interface IDeathRecord extends BaseDocument {
   memberId: string;
+  member?: IMember;
+  deceasedName: string;
   dateOfDeath: string;
   timeOfDeath?: string;
   causeOfDeath?: string;
-  janazahDate?: string;
-  janazahVenue?: string;
-  imamId?: string;
-  burialDate?: string;
-  burialPlace?: string;
-  cemeteryId?: string;
-  plotId?: string;
-  expenses: DeathExpense[];
+  placeOfDeath: string;
+  janazaDate: string;
+  janazaTime?: string;
+  janazaMasjid?: string;
+  cemeteryPlotNo?: string;
+  informantName: string;
+  informantRelation: string;
+  informantPhone: string;
   certificateId?: string;
+  notes?: string;
 }
 
-export interface DeathExpense {
-  description: string;
-  amount: number;
-  paidById?: string;
+export interface ICemeteryPlot extends BaseDocument {
+  plotNo: string;
+  section: string;
+  row?: string;
+  status: 'available' | 'occupied' | 'reserved';
+  occupiedByMemberId?: string;
+  occupiedByMember?: IMember;
+  burialDate?: string;
+  notes?: string;
 }
-
-// ---- Certificate ----
 
 export interface ICertificate extends BaseDocument {
   certificateNo: string;
   type: CertificateType;
   recipientId: string;
+  recipient?: IMember;
   issuedBy: string;
   issuedAt: string;
   expiresAt?: string;
   pdfUrl?: string;
-  publicId?: string;
   data: Record<string, unknown>;
   isRevoked: boolean;
 }
 
-// ---- Event ----
+export interface ICertificateRequest extends BaseDocument {
+  requestedBy: string;
+  requestedByMember?: IMember;
+  type: CertificateType;
+  purpose: string;
+  details?: Record<string, unknown>;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  certificateId?: string;
+  notes?: string;
+}
+
+export interface INotification extends BaseDocument {
+  recipientUserId?: string; // Null if broadcast to tenant
+  targetRoles?: UserRole[];
+  title: string;
+  body: string;
+  channels: NotificationChannel[];
+  type: 'announcement' | 'reminder' | 'payment_alert' | 'event' | 'system';
+  isRead: boolean;
+  readAt?: string;
+  actionUrl?: string;
+  metadata?: Record<string, unknown>;
+}
 
 export interface IEvent extends BaseDocument {
   title: string;
-  description?: string;
-  date: string;
-  endDate?: string;
-  venue?: string;
-  capacity?: number;
-  registrations: EventRegistration[];
-  isFeatured: boolean;
-  isPaid: boolean;
-  fee?: number;
+  description: string;
+  category: 'religious' | 'community' | 'educational' | 'meeting' | 'youth';
+  startDate: string;
+  endDate: string;
+  venue: string;
+  organizerName: string;
+  isPublic: boolean;
   banner?: FileAttachment;
-}
-
-export interface EventRegistration {
-  memberId: string;
-  registeredAt: string;
-  paymentId?: string;
-  attended: boolean;
-}
-
-// ---- Survey ----
-
-export interface ISurvey extends BaseDocument {
-  title: string;
-  description?: string;
-  questions: SurveyQuestion[];
-  responses: SurveyResponse[];
-  isActive: boolean;
-  expiresAt?: string;
-}
-
-export interface SurveyQuestion {
-  _id: string;
-  question: string;
-  type: 'text' | 'single_choice' | 'multiple_choice' | 'rating' | 'boolean';
-  options?: string[];
-  isRequired: boolean;
-}
-
-export interface SurveyResponse {
-  memberId?: string;
-  respondedAt: string;
-  answers: { questionId: string; answer: string | string[] }[];
-}
-
-// ---- Notification ----
-
-export interface INotification extends BaseDocument {
-  channel: NotificationChannel;
-  recipientId?: string;
-  recipientPhone?: string;
-  recipientEmail?: string;
-  title: string;
-  body: string;
-  data?: Record<string, unknown>;
-  status: 'pending' | 'sent' | 'failed' | 'delivered';
-  scheduledAt?: string;
-  sentAt?: string;
-  error?: string;
-}
-
-// ---- Audit Log ----
-
-export interface IAuditLog extends BaseDocument {
-  userId: string;
-  action: 'CREATE' | 'UPDATE' | 'DELETE' | 'VIEW' | 'LOGIN' | 'LOGOUT' | 'EXPORT';
-  entity: string;
-  entityId?: string;
-  changes?: Record<string, { from: unknown; to: unknown }>;
-  ip?: string;
-  userAgent?: string;
-}
-
-// ---- API Response Wrappers ----
-
-export interface ApiResponse<T = unknown> {
-  success: boolean;
-  message: string;
-  data?: T;
-  errors?: string[];
-}
-
-export interface PaginatedResponse<T = unknown> {
-  success: boolean;
-  message: string;
-  data: T[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-    hasNext: boolean;
-    hasPrev: boolean;
-  };
-}
-
-export interface PaginationQuery {
-  page?: number;
-  limit?: number;
-  search?: string;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
-}
-
-// ---- Auth ----
-
-export interface LoginPayload {
-  email?: string;
-  phone?: string;
-  password: string;
-  tenantCode?: string;
-}
-
-export interface AuthTokens {
-  accessToken: string;
-  refreshToken: string;
-  expiresIn: number;
-}
-
-export interface JwtPayload {
-  userId: string;
-  tenantId: string;
-  role: UserRole;
-  permissions: string[];
+  rsvps?: Array<{ memberId: string; status: 'attending' | 'declined' | 'maybe' }>;
 }
