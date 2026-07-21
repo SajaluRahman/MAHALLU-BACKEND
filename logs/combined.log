@@ -11305,3 +11305,26 @@ Use mongoose.model(name, schema)
     at Function.login (/Users/sajalurahman/Desktop/mahallu/apps/backend/src/services/auth.service.ts:66:30)
     at async login (/Users/sajalurahman/Desktop/mahallu/apps/backend/src/controllers/auth.controller.ts:16:32)
 2026-07-21 19:56:22 [http]: ::1 - - [21/Jul/2026:14:26:22 +0000] "POST /api/v1/auth/login HTTP/1.1" 500 66 "http://localhost:3000/" "Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"
+2026-07-21 20:29:45 [info]: ✅ MongoDB connected: localhost
+2026-07-21 20:29:46 [error]: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 20:29:46 [warn]: Redis reconnecting...
+2026-07-21 20:29:46 [error]: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 20:29:47 [warn]: Redis reconnecting...
+2026-07-21 20:29:47 [error]: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 20:29:47 [warn]: Redis reconnecting...
+2026-07-21 20:29:47 [error]: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 20:29:47 [warn]: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 20:29:47 [info]: ✅ Cron jobs initialized
+2026-07-21 20:29:47 [info]: 🚀 Mahallu ERP Backend running on port 5000
+2026-07-21 20:29:47 [info]: 📡 Environment: undefined
+2026-07-21 20:29:47 [info]: 🌐 API Base: http://0.0.0.0:5000/api/v1
