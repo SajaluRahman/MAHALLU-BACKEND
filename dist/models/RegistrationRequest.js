@@ -40,6 +40,7 @@ var RegistrationType;
     RegistrationType["MEMBER"] = "MEMBER";
     RegistrationType["STUDENT"] = "STUDENT";
     RegistrationType["TEACHER"] = "TEACHER";
+    RegistrationType["SADAR_MUALIM"] = "SADAR_MUALIM";
 })(RegistrationType || (exports.RegistrationType = RegistrationType = {}));
 var RegistrationStatus;
 (function (RegistrationStatus) {

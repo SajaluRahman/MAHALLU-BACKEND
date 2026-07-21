@@ -19,9 +19,5 @@ export interface DeathRecordDocument extends Document {
     }>;
     certificateId?: mongoose.Types.ObjectId;
 }
-export declare const DeathRecord: mongoose.Model<DeathRecordDocument, {}, {}, {}, mongoose.Document<unknown, {}, DeathRecordDocument, {}, {}> & DeathRecordDocument & Required<{
-    _id: mongoose.Types.ObjectId;
-}> & {
-    __v: number;
-}, any>;
+export declare const DeathRecord: mongoose.Model<DeathRecordDocument, {}, {}, {}, any, any>;
 //# sourceMappingURL=DeathRecord.d.ts.map

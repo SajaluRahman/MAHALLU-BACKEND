@@ -9,9 +9,5 @@ export interface PlotRequestDocument extends Document {
     createdAt: Date;
     updatedAt: Date;
 }
-export declare const PlotRequest: mongoose.Model<PlotRequestDocument, {}, {}, {}, mongoose.Document<unknown, {}, PlotRequestDocument, {}, {}> & PlotRequestDocument & Required<{
-    _id: mongoose.Types.ObjectId;
-}> & {
-    __v: number;
-}, any>;
+export declare const PlotRequest: mongoose.Model<PlotRequestDocument, {}, {}, {}, any, any>;
 //# sourceMappingURL=PlotRequest.d.ts.map

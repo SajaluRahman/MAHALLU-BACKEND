@@ -54,4 +54,7 @@ const TeacherSchema = new mongoose_1.Schema({
 TeacherSchema.index({ tenantId: 1, employeeId: 1 }, { unique: true });
 TeacherSchema.index({ tenantId: 1, madrasaId: 1 });
 exports.Teacher = mongoose_1.default.model('Teacher', TeacherSchema);
+if (!mongoose_1.default.models.teacher) {
+    mongoose_1.default.model('teacher', TeacherSchema);
+}
 //# sourceMappingURL=Teacher.js.map

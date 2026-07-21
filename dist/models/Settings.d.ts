@@ -43,9 +43,5 @@ export interface SettingsDocument extends Document {
         Jumuah: string;
     };
 }
-export declare const Settings: mongoose.Model<SettingsDocument, {}, {}, {}, mongoose.Document<unknown, {}, SettingsDocument, {}, {}> & SettingsDocument & Required<{
-    _id: mongoose.Types.ObjectId;
-}> & {
-    __v: number;
-}, any>;
+export declare const Settings: mongoose.Model<SettingsDocument, {}, {}, {}, any, any>;
 //# sourceMappingURL=Settings.d.ts.map

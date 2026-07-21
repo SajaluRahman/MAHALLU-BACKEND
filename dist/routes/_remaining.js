@@ -92,20 +92,41 @@ exports.surveyRoutes = (() => {
 exports.receiptRoutes = (() => {
     const r = (0, express_1.Router)();
     r.use(auth_1.authenticate);
-    r.get('/', async (req, res, next) => { try {
-        const receipts = await Receipt_1.Receipt.find({ tenantId: req.user.tenantId }).populate('paymentId').sort({ createdAt: -1 }).lean();
-        res.json({ success: true, data: receipts });
-    }
-    catch (e) {
-        next(e);
-    } });
-    r.get('/:id', async (req, res, next) => { try {
-        const receipt = await Receipt_1.Receipt.findOne({ _id: req.params.id, tenantId: req.user.tenantId }).populate('paymentId').lean();
-        res.json({ success: true, data: receipt });
-    }
-    catch (e) {
-        next(e);
-    } });
+    r.get('/', async (req, res, next) => {
+        try {
+            const receipts = await Receipt_1.Receipt.find({ tenantId: req.user.tenantId })
+                .populate({
+                path: 'paymentId',
+                populate: [
+                    { path: 'paidForId', select: 'name phone' },
+                    { path: 'paidById', select: 'name phone' }
+                ]
+            })
+                .sort({ createdAt: -1 })
+                .lean();
+            res.json({ success: true, data: receipts });
+        }
+        catch (e) {
+            next(e);
+        }
+    });
+    r.get('/:id', async (req, res, next) => {
+        try {
+            const receipt = await Receipt_1.Receipt.findOne({ _id: req.params.id, tenantId: req.user.tenantId })
+                .populate({
+                path: 'paymentId',
+                populate: [
+                    { path: 'paidForId', select: 'name phone' },
+                    { path: 'paidById', select: 'name phone' }
+                ]
+            })
+                .lean();
+            res.json({ success: true, data: receipt });
+        }
+        catch (e) {
+            next(e);
+        }
+    });
     r.post('/manual', async (req, res, next) => {
         try {
             const { amount, type, paidById, paidForId, description, gateway = 'cash' } = req.body;
@@ -174,6 +195,15 @@ exports.settingsRoutes = (() => {
 exports.reportRoutes = (() => {
     const r = (0, express_1.Router)();
     r.use(auth_1.authenticate);
+    const escapeCSV = (val) => {
+        if (val === null || val === undefined)
+            return '';
+        let str = String(val);
+        if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+            str = '"' + str.replace(/"/g, '""') + '"';
+        }
+        return str;
+    };
     r.get('/financial', async (req, res, next) => { try {
         const { Payment } = await Promise.resolve().then(() => __importStar(require('../models/Payment')));
         const { startDate, endDate } = req.query;
@@ -186,6 +216,151 @@ exports.reportRoutes = (() => {
     catch (e) {
         next(e);
     } });
+    r.get('/export/financial', async (req, res, next) => {
+        try {
+            const { Payment } = await Promise.resolve().then(() => __importStar(require('../models/Payment')));
+            const payments = await Payment.find({ tenantId: req.user.tenantId })
+                .populate({ path: 'paidForId', select: 'name', options: { strictPopulate: false } })
+                .populate({ path: 'paidById', select: 'name', options: { strictPopulate: false } })
+                .sort({ createdAt: -1 })
+                .lean();
+            const headers = ['Payment No', 'Date', 'Type', 'Amount', 'Gateway', 'Payment ID', 'Order ID', 'Status', 'Description', 'Paid For', 'Paid By'];
+            const rows = payments.map((p) => [
+                p.paymentNo || '',
+                p.createdAt ? new Date(p.createdAt).toLocaleDateString() : '',
+                p.type || '',
+                p.amount || 0,
+                p.gateway || '',
+                p.gatewayPaymentId || '',
+                p.gatewayOrderId || '',
+                p.status || '',
+                p.description || '',
+                p.paidForId?.name || '',
+                p.paidById?.name || ''
+            ]);
+            const csvContent = [headers.join(','), ...rows.map(r => r.map(escapeCSV).join(','))].join('\n');
+            res.setHeader('Content-Type', 'text/csv');
+            res.setHeader('Content-Disposition', 'attachment; filename=financial_report.csv');
+            res.status(200).send(csvContent);
+        }
+        catch (e) {
+            next(e);
+        }
+    });
+    r.get('/export/members', async (req, res, next) => {
+        try {
+            const { Member } = await Promise.resolve().then(() => __importStar(require('../models/Member')));
+            const members = await Member.find({ tenantId: req.user.tenantId })
+                .populate({ path: 'familyId', select: 'familyCode address wardNo', options: { strictPopulate: false } })
+                .sort({ name: 1 })
+                .lean();
+            const headers = ['Name', 'Member ID', 'Family Code', 'Ward No', 'Address', 'Phone', 'Email', 'Gender', 'DOB', 'Blood Group', 'Status'];
+            const rows = members.map((m) => [
+                m.name || '',
+                m.memberId || '',
+                m.familyId?.familyCode || '',
+                m.familyId?.wardNo || '',
+                m.familyId?.address?.line1 || '',
+                m.phone || '',
+                m.email || '',
+                m.gender || '',
+                m.dateOfBirth ? new Date(m.dateOfBirth).toLocaleDateString() : '',
+                m.bloodGroup || '',
+                m.status || ''
+            ]);
+            const csvContent = [headers.join(','), ...rows.map(r => r.map(escapeCSV).join(','))].join('\n');
+            res.setHeader('Content-Type', 'text/csv');
+            res.setHeader('Content-Disposition', 'attachment; filename=member_census_report.csv');
+            res.status(200).send(csvContent);
+        }
+        catch (e) {
+            next(e);
+        }
+    });
+    r.get('/export/academic', async (req, res, next) => {
+        try {
+            const { Student } = await Promise.resolve().then(() => __importStar(require('../models/Student')));
+            const students = await Student.find({ tenantId: req.user.tenantId })
+                .populate({ path: 'memberId', select: 'name phone gender dateOfBirth', options: { strictPopulate: false } })
+                .populate({ path: 'classId', select: 'name', options: { strictPopulate: false } })
+                .populate({ path: 'guardianId', select: 'name phone', options: { strictPopulate: false } })
+                .sort({ name: 1 })
+                .lean();
+            const headers = ['Student Name', 'Admission No', 'Class', 'Gender', 'DOB', 'Parent Name', 'Parent Phone', 'Status'];
+            const rows = students.map((s) => [
+                s.memberId?.name || s.name || '',
+                s.admissionNo || '',
+                s.classId?.name || '',
+                s.memberId?.gender || '',
+                s.memberId?.dateOfBirth ? new Date(s.memberId.dateOfBirth).toLocaleDateString() : '',
+                s.guardianId?.name || '',
+                s.guardianId?.phone || '',
+                s.status || ''
+            ]);
+            const csvContent = [headers.join(','), ...rows.map(r => r.map(escapeCSV).join(','))].join('\n');
+            res.setHeader('Content-Type', 'text/csv');
+            res.setHeader('Content-Disposition', 'attachment; filename=academic_progress_report.csv');
+            res.status(200).send(csvContent);
+        }
+        catch (e) {
+            next(e);
+        }
+    });
+    r.get('/export/income-expense', async (req, res, next) => {
+        try {
+            const { Transaction } = await Promise.resolve().then(() => __importStar(require('../models/Transaction')));
+            const transactions = await Transaction.find({ tenantId: req.user.tenantId })
+                .sort({ date: -1 })
+                .lean();
+            const headers = ['Date', 'Type', 'Category', 'Amount', 'Description', 'Reference No'];
+            const rows = transactions.map((t) => [
+                t.date ? new Date(t.date).toLocaleDateString() : '',
+                t.type || '',
+                t.category || '',
+                t.amount || 0,
+                t.description || '',
+                t.referenceNo || ''
+            ]);
+            const csvContent = [headers.join(','), ...rows.map(r => r.map(escapeCSV).join(','))].join('\n');
+            res.setHeader('Content-Type', 'text/csv');
+            res.setHeader('Content-Disposition', 'attachment; filename=income_expense_report.csv');
+            res.status(200).send(csvContent);
+        }
+        catch (e) {
+            next(e);
+        }
+    });
+    r.get('/export/payments', async (req, res, next) => {
+        try {
+            const { Payment } = await Promise.resolve().then(() => __importStar(require('../models/Payment')));
+            const payments = await Payment.find({ tenantId: req.user.tenantId })
+                .populate({ path: 'paidForId', select: 'name', options: { strictPopulate: false } })
+                .populate({ path: 'paidById', select: 'name', options: { strictPopulate: false } })
+                .sort({ createdAt: -1 })
+                .lean();
+            const headers = ['Payment No', 'Date', 'Type', 'Amount', 'Gateway', 'Payment ID', 'Order ID', 'Status', 'Description', 'Paid For', 'Paid By'];
+            const rows = payments.map((p) => [
+                p.paymentNo || '',
+                p.createdAt ? new Date(p.createdAt).toLocaleDateString() : '',
+                p.type || '',
+                p.amount || 0,
+                p.gateway || '',
+                p.gatewayPaymentId || '',
+                p.gatewayOrderId || '',
+                p.status || '',
+                p.description || '',
+                p.paidForId?.name || '',
+                p.paidById?.name || ''
+            ]);
+            const csvContent = [headers.join(','), ...rows.map(r => r.map(escapeCSV).join(','))].join('\n');
+            res.setHeader('Content-Type', 'text/csv');
+            res.setHeader('Content-Disposition', 'attachment; filename=payments_history_report.csv');
+            res.status(200).send(csvContent);
+        }
+        catch (e) {
+            next(e);
+        }
+    });
     return r;
 })();
 // --- Upload Routes ---

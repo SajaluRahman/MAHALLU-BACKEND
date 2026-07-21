@@ -24,9 +24,5 @@ export interface HomeworkDocument extends Document {
         gradedAt?: Date;
     }>;
 }
-export declare const Homework: mongoose.Model<HomeworkDocument, {}, {}, {}, mongoose.Document<unknown, {}, HomeworkDocument, {}, {}> & HomeworkDocument & Required<{
-    _id: mongoose.Types.ObjectId;
-}> & {
-    __v: number;
-}, any>;
+export declare const Homework: mongoose.Model<HomeworkDocument, {}, {}, {}, any, any>;
 //# sourceMappingURL=Homework.d.ts.map

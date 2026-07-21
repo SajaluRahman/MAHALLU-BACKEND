@@ -13,9 +13,5 @@ export interface DonationDocument extends Document {
     status?: 'pending' | 'paid' | 'partial';
     dueDate?: Date;
 }
-export declare const Donation: mongoose.Model<DonationDocument, {}, {}, {}, mongoose.Document<unknown, {}, DonationDocument, {}, {}> & DonationDocument & Required<{
-    _id: mongoose.Types.ObjectId;
-}> & {
-    __v: number;
-}, any>;
+export declare const Donation: mongoose.Model<DonationDocument, {}, {}, {}, any, any>;
 //# sourceMappingURL=Donation.d.ts.map

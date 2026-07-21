@@ -13,9 +13,5 @@ export interface CertificateDocument extends Document {
     data: Record<string, unknown>;
     isRevoked: boolean;
 }
-export declare const Certificate: mongoose.Model<CertificateDocument, {}, {}, {}, mongoose.Document<unknown, {}, CertificateDocument, {}, {}> & CertificateDocument & Required<{
-    _id: mongoose.Types.ObjectId;
-}> & {
-    __v: number;
-}, any>;
+export declare const Certificate: mongoose.Model<CertificateDocument, {}, {}, {}, any, any>;
 //# sourceMappingURL=Certificate.d.ts.map

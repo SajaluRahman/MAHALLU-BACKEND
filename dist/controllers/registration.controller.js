@@ -210,8 +210,8 @@ const approveRegistration = async (req, res) => {
                 feeBalance: 0,
             });
         }
-        else if (type === RegistrationRequest_1.RegistrationType.TEACHER) {
-            role = shared_types_1.UserRole.USTADH;
+        else if (type === RegistrationRequest_1.RegistrationType.TEACHER || type === RegistrationRequest_1.RegistrationType.SADAR_MUALIM) {
+            role = type === RegistrationRequest_1.RegistrationType.TEACHER ? shared_types_1.UserRole.USTADH : shared_types_1.UserRole.SADAR_MUALIM;
             await Teacher_1.Teacher.create({
                 tenantId,
                 memberId: member._id,

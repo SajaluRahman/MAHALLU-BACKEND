@@ -70,4 +70,7 @@ StudentSchema.index({ tenantId: 1, memberId: 1 });
 StudentSchema.index({ tenantId: 1, guardianId: 1 });
 StudentSchema.index({ tenantId: 1, status: 1 });
 exports.Student = mongoose_1.default.model('Student', StudentSchema);
+if (!mongoose_1.default.models.student) {
+    mongoose_1.default.model('student', StudentSchema);
+}
 //# sourceMappingURL=Student.js.map

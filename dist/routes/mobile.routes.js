@@ -37,6 +37,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
+const mongoose_1 = __importDefault(require("mongoose"));
 const auth_1 = require("../middleware/auth");
 const User_1 = require("../models/User");
 const Member_1 = require("../models/Member");
@@ -473,20 +474,32 @@ router.get('/me/ustadh/classes', async (req, res, next) => {
         const teacher = await Teacher_1.Teacher.findOne({ tenantId: req.user.tenantId, memberId: user.memberId }).select('_id').lean();
         if (!teacher)
             return res.json({ success: true, data: [] });
-        // Ensure we await import if Class model isn't imported at top
         const { Class } = await Promise.resolve().then(() => __importStar(require('../models/Class')));
+        const { Student } = await Promise.resolve().then(() => __importStar(require('../models/Student')));
         const classes = await Class.find({
             tenantId: req.user.tenantId,
             teacherId: teacher._id,
+        }).lean();
+        const classIds = classes.map(c => c._id);
+        const allStudents = await Student.find({
+            tenantId: req.user.tenantId,
+            classId: { $in: classIds },
+            status: 'active',
+            isDeleted: { $ne: true }
         })
-            .populate({
-            path: 'students',
-            match: { isDeleted: { $ne: true } },
-            populate: { path: 'memberId', select: 'name photo phone gender' }
-        })
+            .populate({ path: 'memberId', select: 'name photo phone gender', options: { strictPopulate: false } })
             .lean();
+        const studentsByClass = new Map();
+        allStudents.forEach(s => {
+            const cid = s.classId?.toString() || '';
+            if (!studentsByClass.has(cid))
+                studentsByClass.set(cid, []);
+            studentsByClass.get(cid).push(s);
+        });
+        classes.forEach((c) => {
+            c.students = studentsByClass.get(c._id.toString()) || [];
+        });
         if (teacher.assignedStudents && teacher.assignedStudents.length > 0) {
-            const { Student } = await Promise.resolve().then(() => __importStar(require('../models/Student')));
             const directStudents = await Student.find({
                 _id: { $in: teacher.assignedStudents },
                 isDeleted: { $ne: true }
@@ -558,17 +571,22 @@ router.post('/me/ustadh/attendance', async (req, res, next) => {
         const ops = records.map((record) => ({
             updateOne: {
                 filter: {
-                    tenantId: req.user.tenantId,
+                    tenantId: new mongoose_1.default.Types.ObjectId(req.user.tenantId),
                     entityType: 'student',
-                    entityId: record.studentId,
-                    classId: classId,
+                    entityId: new mongoose_1.default.Types.ObjectId(record.studentId),
+                    classId: new mongoose_1.default.Types.ObjectId(classId),
                     date: attendanceDate,
                 },
                 update: {
                     $set: {
+                        tenantId: new mongoose_1.default.Types.ObjectId(req.user.tenantId),
+                        entityType: 'student',
+                        entityId: new mongoose_1.default.Types.ObjectId(record.studentId),
+                        classId: new mongoose_1.default.Types.ObjectId(classId),
+                        date: attendanceDate,
                         status: record.status,
                         note: record.note,
-                        markedById: user.memberId,
+                        markedById: new mongoose_1.default.Types.ObjectId(req.user.userId),
                     }
                 },
                 upsert: true,
@@ -1016,6 +1034,162 @@ router.post('/properties/request', async (req, res, next) => {
             status: 'PENDING'
         });
         res.status(201).json({ success: true, data: reqDoc });
+    }
+    catch (e) {
+        next(e);
+    }
+});
+// ──────────────────────────────────────────────────
+// SADAR MUALIM & FAMILY STUDENT PORTALS
+// ──────────────────────────────────────────────────
+// GET /mobile/sadar/families
+router.get('/sadar/families', async (req, res, next) => {
+    try {
+        const user = await User_1.User.findById(req.user.userId).lean();
+        if (!user || user.role !== 'sadar_mualim') {
+            return res.status(403).json({ success: false, message: 'Sadar Mualim role required' });
+        }
+        const families = await Family_1.Family.find({ tenantId: req.user.tenantId, isDeleted: false })
+            .populate('headMemberId', 'name')
+            .lean();
+        const formatted = families.map(f => ({
+            _id: f._id,
+            familyCode: f.familyCode,
+            headName: f.headMemberId?.name || 'Unknown',
+        }));
+        res.json({ success: true, data: formatted });
+    }
+    catch (e) {
+        next(e);
+    }
+});
+// GET /mobile/sadar/classes
+router.get('/sadar/classes', async (req, res, next) => {
+    try {
+        const user = await User_1.User.findById(req.user.userId).lean();
+        if (!user || user.role !== 'sadar_mualim') {
+            return res.status(403).json({ success: false, message: 'Sadar Mualim role required' });
+        }
+        const { Class } = await Promise.resolve().then(() => __importStar(require('../models/Class')));
+        const classes = await Class.find({ tenantId: req.user.tenantId }).lean();
+        res.json({ success: true, data: classes });
+    }
+    catch (e) {
+        next(e);
+    }
+});
+// POST /mobile/sadar/students
+router.post('/mobile/sadar/students', async (req, res, next) => {
+    try {
+        const user = await User_1.User.findById(req.user.userId).lean();
+        if (!user || user.role !== 'sadar_mualim') {
+            return res.status(403).json({ success: false, message: 'Sadar Mualim role required' });
+        }
+        const { name, admissionNo, classId, familyId } = req.body;
+        if (!name || !classId || !familyId) {
+            return res.status(400).json({ success: false, message: 'Name, Class, and Family are required' });
+        }
+        const family = await Family_1.Family.findOne({ _id: familyId, tenantId: req.user.tenantId });
+        if (!family)
+            return res.status(404).json({ success: false, message: 'Family not found' });
+        // 1. Create student Member profile
+        const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
+        const studentMember = await Member_1.Member.create({
+            tenantId: req.user.tenantId,
+            memberId: `MHL-${new Date().getFullYear()}-${randomStr}`,
+            name,
+            familyId: family._id,
+            gender: 'male',
+            status: 'active',
+        });
+        // 2. Add member to family
+        family.members.push({
+            memberId: studentMember._id,
+            relationship: 'Child/Dependent',
+            isHead: false
+        });
+        await family.save();
+        // 3. Create Student profile
+        const newStudent = await Student_1.Student.create({
+            tenantId: req.user.tenantId,
+            memberId: studentMember._id,
+            admissionNo: admissionNo || `ADM-${new Date().getFullYear()}-${randomStr}`,
+            admissionDate: new Date(),
+            classId,
+            madrasaId: family.tenantId,
+            guardianId: family.headMemberId,
+            status: 'active',
+        });
+        // 4. Register in Class collection students list
+        const { Class } = await Promise.resolve().then(() => __importStar(require('../models/Class')));
+        await Class.findByIdAndUpdate(classId, { $addToSet: { students: newStudent._id } });
+        res.status(201).json({ success: true, data: newStudent });
+    }
+    catch (e) {
+        next(e);
+    }
+});
+// GET /mobile/member/family-students
+router.get('/member/family-students', async (req, res, next) => {
+    try {
+        const user = await User_1.User.findById(req.user.userId).lean();
+        if (!user || !user.memberId) {
+            return res.status(403).json({ success: false, message: 'Member profile required' });
+        }
+        const member = await Member_1.Member.findById(user.memberId).lean();
+        if (!member || !member.familyId)
+            return res.json({ success: true, data: [] });
+        const family = await Family_1.Family.findById(member.familyId).lean();
+        if (!family)
+            return res.json({ success: true, data: [] });
+        const memberIds = family.members.map(m => m.memberId);
+        const students = await Student_1.Student.find({
+            tenantId: req.user.tenantId,
+            memberId: { $in: memberIds },
+            isDeleted: { $ne: true }
+        })
+            .populate({ path: 'memberId', select: 'name photo phone gender', options: { strictPopulate: false } })
+            .populate({ path: 'classId', select: 'name level', options: { strictPopulate: false } })
+            .lean();
+        const aggregated = [];
+        for (const student of students) {
+            const attendanceLogs = await Attendance_1.Attendance.find({
+                tenantId: req.user.tenantId,
+                entityId: student._id
+            }).select('date status').sort({ date: -1 }).lean();
+            const total = attendanceLogs.length;
+            const present = attendanceLogs.filter(a => a.status === 'present').length;
+            const percentage = total > 0 ? Math.round((present / total) * 100) : 100;
+            const homeworks = student.classId
+                ? await Homework_1.Homework.find({
+                    tenantId: req.user.tenantId,
+                    classId: student.classId._id
+                }).sort({ dueDate: -1 }).limit(10).lean()
+                : [];
+            const exams = student.classId
+                ? await Exam_1.Exam.find({
+                    tenantId: req.user.tenantId,
+                    classId: student.classId._id
+                }).sort({ date: -1 }).limit(10).lean()
+                : [];
+            const notices = await Notification_1.Notification.find({
+                tenantId: req.user.tenantId,
+                channel: 'push',
+            }).sort({ createdAt: -1 }).limit(5).lean();
+            aggregated.push({
+                studentInfo: student,
+                attendance: {
+                    total,
+                    present,
+                    percentage,
+                    logs: attendanceLogs
+                },
+                homeworks,
+                exams,
+                notices
+            });
+        }
+        res.json({ success: true, data: aggregated });
     }
     catch (e) {
         next(e);

@@ -12,9 +12,5 @@ export interface MadrasaDocument extends Document {
     academicYear: string;
     affiliatedTo?: string;
 }
-export declare const Madrasa: mongoose.Model<MadrasaDocument, {}, {}, {}, mongoose.Document<unknown, {}, MadrasaDocument, {}, {}> & MadrasaDocument & Required<{
-    _id: mongoose.Types.ObjectId;
-}> & {
-    __v: number;
-}, any>;
+export declare const Madrasa: mongoose.Model<MadrasaDocument, {}, {}, {}, any, any>;
 //# sourceMappingURL=Madrasa.d.ts.map

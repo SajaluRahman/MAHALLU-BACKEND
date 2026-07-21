@@ -2,7 +2,8 @@ import mongoose, { Document } from 'mongoose';
 export declare enum RegistrationType {
     MEMBER = "MEMBER",
     STUDENT = "STUDENT",
-    TEACHER = "TEACHER"
+    TEACHER = "TEACHER",
+    SADAR_MUALIM = "SADAR_MUALIM"
 }
 export declare enum RegistrationStatus {
     PENDING = "PENDING",
@@ -18,9 +19,5 @@ export interface RegistrationRequestDocument extends Document {
     createdAt: Date;
     updatedAt: Date;
 }
-export declare const RegistrationRequest: mongoose.Model<RegistrationRequestDocument, {}, {}, {}, mongoose.Document<unknown, {}, RegistrationRequestDocument, {}, {}> & RegistrationRequestDocument & Required<{
-    _id: mongoose.Types.ObjectId;
-}> & {
-    __v: number;
-}, any>;
+export declare const RegistrationRequest: mongoose.Model<RegistrationRequestDocument, {}, {}, {}, any, any>;
 //# sourceMappingURL=RegistrationRequest.d.ts.map

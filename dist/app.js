@@ -37,6 +37,7 @@ const death_routes_1 = __importDefault(require("./routes/death.routes"));
 const cemetery_routes_1 = __importDefault(require("./routes/cemetery.routes"));
 const event_routes_1 = __importDefault(require("./routes/event.routes"));
 const certificate_routes_1 = __importDefault(require("./routes/certificate.routes"));
+const notification_routes_1 = __importDefault(require("./routes/notification.routes"));
 const survey_routes_1 = __importDefault(require("./routes/survey.routes"));
 const report_routes_1 = __importDefault(require("./routes/report.routes"));
 const upload_routes_1 = __importDefault(require("./routes/upload.routes"));
@@ -73,12 +74,17 @@ function createApp() {
     });
     // ---- Security Middleware ----
     app.use((0, helmet_1.default)({
+        crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
         contentSecurityPolicy: {
             directives: {
                 defaultSrc: ["'self'"],
-                scriptSrc: ["'self'"],
+                scriptSrc: ["'self'", "'unsafe-inline'", "https://checkout.razorpay.com", "https://*.razorpay.com"],
+                scriptSrcElem: ["'self'", "'unsafe-inline'", "https://checkout.razorpay.com", "https://*.razorpay.com"],
                 styleSrc: ["'self'", "'unsafe-inline'"],
-                imgSrc: ["'self'", 'data:', 'res.cloudinary.com'],
+                imgSrc: ["'self'", 'data:', 'res.cloudinary.com', "https://*.razorpay.com"],
+                connectSrc: ["'self'", "https://*.razorpay.com", "wss://*.razorpay.com"],
+                frameSrc: ["'self'", "https://*.razorpay.com"],
+                formAction: ["'self'", "https://*.razorpay.com", "https://api.razorpay.com"],
             },
         },
     }));
@@ -88,6 +94,8 @@ function createApp() {
                 process.env.FRONTEND_URL || 'http://localhost:3000',
                 'http://localhost:3001',
                 'https://mahallu.app',
+                'https://mahallu-dashbaord-five.vercel.app',
+                'https://mahallu-backend-clae.onrender.com',
                 /\.mahallu\.app$/,
                 /\.vercel\.app$/,
             ];
@@ -164,6 +172,7 @@ function createApp() {
     app.use('/api/v1/inbox', inbox_routes_1.default);
     app.use('/api/v1/finance', finance_routes_1.default);
     app.use('/api/v1/receipts', receipt_routes_1.default);
+    app.use('/api/v1/notices', notification_routes_1.default);
     // 4. API Routes - Dashboard/Mobile Aggregation
     app.use('/api/v1/dashboard', dashboard_routes_1.default);
     app.use(`${API_V1}/reports`, report_routes_1.default);

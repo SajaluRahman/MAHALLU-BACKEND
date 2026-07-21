@@ -19,9 +19,5 @@ export interface LeaseDocument extends Document {
         fileName?: string;
     }>;
 }
-export declare const Lease: mongoose.Model<LeaseDocument, {}, {}, {}, mongoose.Document<unknown, {}, LeaseDocument, {}, {}> & LeaseDocument & Required<{
-    _id: mongoose.Types.ObjectId;
-}> & {
-    __v: number;
-}, any>;
+export declare const Lease: mongoose.Model<LeaseDocument, {}, {}, {}, any, any>;
 //# sourceMappingURL=Lease.d.ts.map

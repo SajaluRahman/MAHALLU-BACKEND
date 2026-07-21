@@ -20,9 +20,5 @@ export interface CemeteryDocument extends Document {
         photos: string[];
     }>;
 }
-export declare const Cemetery: mongoose.Model<CemeteryDocument, {}, {}, {}, mongoose.Document<unknown, {}, CemeteryDocument, {}, {}> & CemeteryDocument & Required<{
-    _id: mongoose.Types.ObjectId;
-}> & {
-    __v: number;
-}, any>;
+export declare const Cemetery: mongoose.Model<CemeteryDocument, {}, {}, {}, any, any>;
 //# sourceMappingURL=Cemetery.d.ts.map

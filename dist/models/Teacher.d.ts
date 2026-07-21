@@ -31,9 +31,5 @@ export interface TeacherDocument extends Document {
         subject: string;
     }>;
 }
-export declare const Teacher: mongoose.Model<TeacherDocument, {}, {}, {}, mongoose.Document<unknown, {}, TeacherDocument, {}, {}> & TeacherDocument & Required<{
-    _id: mongoose.Types.ObjectId;
-}> & {
-    __v: number;
-}, any>;
+export declare const Teacher: mongoose.Model<TeacherDocument, {}, {}, {}, any, any>;
 //# sourceMappingURL=Teacher.d.ts.map

@@ -11,9 +11,5 @@ export interface CertificateRequestDocument extends Document {
     createdAt: Date;
     updatedAt: Date;
 }
-export declare const CertificateRequest: mongoose.Model<CertificateRequestDocument, {}, {}, {}, mongoose.Document<unknown, {}, CertificateRequestDocument, {}, {}> & CertificateRequestDocument & Required<{
-    _id: mongoose.Types.ObjectId;
-}> & {
-    __v: number;
-}, any>;
+export declare const CertificateRequest: mongoose.Model<CertificateRequestDocument, {}, {}, {}, any, any>;
 //# sourceMappingURL=CertificateRequest.d.ts.map

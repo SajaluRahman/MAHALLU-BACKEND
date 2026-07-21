@@ -33,9 +33,5 @@ export interface MosqueDocument extends Document {
         balance?: number;
     }>;
 }
-export declare const Mosque: mongoose.Model<MosqueDocument, {}, {}, {}, mongoose.Document<unknown, {}, MosqueDocument, {}, {}> & MosqueDocument & Required<{
-    _id: mongoose.Types.ObjectId;
-}> & {
-    __v: number;
-}, any>;
+export declare const Mosque: mongoose.Model<MosqueDocument, {}, {}, {}, any, any>;
 //# sourceMappingURL=Mosque.d.ts.map

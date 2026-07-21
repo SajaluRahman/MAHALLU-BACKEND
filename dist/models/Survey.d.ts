@@ -21,9 +21,5 @@ export interface SurveyDocument extends Document {
     isActive: boolean;
     expiresAt?: Date;
 }
-export declare const Survey: mongoose.Model<SurveyDocument, {}, {}, {}, mongoose.Document<unknown, {}, SurveyDocument, {}, {}> & SurveyDocument & Required<{
-    _id: mongoose.Types.ObjectId;
-}> & {
-    __v: number;
-}, any>;
+export declare const Survey: mongoose.Model<SurveyDocument, {}, {}, {}, any, any>;
 //# sourceMappingURL=Survey.d.ts.map

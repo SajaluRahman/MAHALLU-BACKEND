@@ -89,4 +89,7 @@ MemberSchema.virtual('age').get(function () {
     return age;
 });
 exports.Member = mongoose_1.default.model('Member', MemberSchema);
+if (!mongoose_1.default.models.member) {
+    mongoose_1.default.model('member', MemberSchema);
+}
 //# sourceMappingURL=Member.js.map

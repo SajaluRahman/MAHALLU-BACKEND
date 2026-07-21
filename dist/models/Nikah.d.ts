@@ -25,9 +25,5 @@ export interface NikahDocument extends Document {
     }>;
     certificateId?: mongoose.Types.ObjectId;
 }
-export declare const Nikah: mongoose.Model<NikahDocument, {}, {}, {}, mongoose.Document<unknown, {}, NikahDocument, {}, {}> & NikahDocument & Required<{
-    _id: mongoose.Types.ObjectId;
-}> & {
-    __v: number;
-}, any>;
+export declare const Nikah: mongoose.Model<NikahDocument, {}, {}, {}, any, any>;
 //# sourceMappingURL=Nikah.d.ts.map
