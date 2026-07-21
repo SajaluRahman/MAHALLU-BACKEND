@@ -30,6 +30,10 @@ export interface FamilyDocument extends Document {
     };
     recurringDonationType: 'monthly' | 'yearly' | 'none';
     recurringDonationAmount: number;
+    recurringPaymentDay?: number;
+    recurringPaymentMonth?: number;
+    nextPaymentDueDate?: Date;
+    lastPaymentDate?: Date;
     isDeleted: boolean;
     deletedAt?: Date;
 }

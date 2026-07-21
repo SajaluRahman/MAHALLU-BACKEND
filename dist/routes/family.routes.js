@@ -1,6 +1,4 @@
 "use strict";
-// Route scaffolds — all fully wired with authenticate + RBAC stubs
-// Each will be fully implemented in Phase 1 continuation
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
@@ -38,12 +36,35 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.calculateNextDueDate = calculateNextDueDate;
 const express_1 = require("express");
 const auth_1 = require("../middleware/auth");
 const shared_config_1 = require("@mahallu/shared-config");
 const Family_1 = require("../models/Family");
 const errorHandler_1 = require("../middleware/errorHandler");
 const qrcode_1 = __importDefault(require("qrcode"));
+function calculateNextDueDate(type, day = 1, month = 1, lastPaymentDate) {
+    if (!type || type === 'none')
+        return undefined;
+    const now = lastPaymentDate ? new Date(lastPaymentDate) : new Date();
+    const safeDay = Math.min(Math.max(1, day || 1), 28);
+    const safeMonth = Math.min(Math.max(1, month || 1), 12);
+    if (type === 'monthly') {
+        const candidate = new Date(now.getFullYear(), now.getMonth(), safeDay);
+        if (candidate <= now) {
+            candidate.setMonth(candidate.getMonth() + 1);
+        }
+        return candidate;
+    }
+    if (type === 'yearly') {
+        const candidate = new Date(now.getFullYear(), safeMonth - 1, safeDay);
+        if (candidate <= now) {
+            candidate.setFullYear(candidate.getFullYear() + 1);
+        }
+        return candidate;
+    }
+    return undefined;
+}
 const router = (0, express_1.Router)();
 router.use(auth_1.authenticate);
 router.get('/', (0, auth_1.authorize)(shared_config_1.PERMISSIONS.FAMILY_VIEW), async (req, res, next) => {
@@ -62,7 +83,18 @@ router.get('/', (0, auth_1.authorize)(shared_config_1.PERMISSIONS.FAMILY_VIEW), 
             Family_1.Family.find(filter).populate('headMemberId', 'name phone photo').sort({ createdAt: -1 }).skip((pageNum - 1) * limitNum).limit(limitNum).lean(),
             Family_1.Family.countDocuments(filter),
         ]);
-        res.json({ success: true, data: families, pagination: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) } });
+        // Enhance families with next payment due date calculations if missing
+        const enhancedFamilies = families.map((f) => {
+            let nextDue = f.nextPaymentDueDate;
+            if (!nextDue && f.recurringDonationType && f.recurringDonationType !== 'none') {
+                nextDue = calculateNextDueDate(f.recurringDonationType, f.recurringPaymentDay, f.recurringPaymentMonth, f.lastPaymentDate);
+            }
+            return {
+                ...f,
+                nextPaymentDueDate: nextDue,
+            };
+        });
+        res.json({ success: true, data: enhancedFamilies, pagination: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) } });
     }
     catch (e) {
         next(e);
@@ -74,7 +106,11 @@ router.get('/:id', (0, auth_1.authorize)(shared_config_1.PERMISSIONS.FAMILY_VIEW
             .populate('headMemberId members.memberId').lean();
         if (!family)
             throw new errorHandler_1.AppError('Family not found', 404);
-        res.json({ success: true, data: family });
+        let nextDue = family.nextPaymentDueDate;
+        if (!nextDue && family.recurringDonationType && family.recurringDonationType !== 'none') {
+            nextDue = calculateNextDueDate(family.recurringDonationType, family.recurringPaymentDay, family.recurringPaymentMonth, family.lastPaymentDate);
+        }
+        res.json({ success: true, data: { ...family, nextPaymentDueDate: nextDue } });
     }
     catch (e) {
         next(e);
@@ -87,7 +123,17 @@ router.post('/', (0, auth_1.authorize)(shared_config_1.PERMISSIONS.FAMILY_CREATE
         const familyCode = `FAM-${String(count + 1).padStart(4, '0')}`;
         const qrData = JSON.stringify({ familyCode, tenantId, type: 'family' });
         const qrCode = await qrcode_1.default.toDataURL(qrData);
-        const family = await Family_1.Family.create({ ...req.body, tenantId, familyCode, qrCode });
+        const recurringType = req.body.recurringDonationType;
+        const recurringDay = req.body.recurringPaymentDay || 1;
+        const recurringMonth = req.body.recurringPaymentMonth || 1;
+        const nextPaymentDueDate = calculateNextDueDate(recurringType, recurringDay, recurringMonth);
+        const family = await Family_1.Family.create({
+            ...req.body,
+            tenantId,
+            familyCode,
+            qrCode,
+            nextPaymentDueDate,
+        });
         res.status(201).json({ success: true, data: family });
     }
     catch (e) {
@@ -96,7 +142,11 @@ router.post('/', (0, auth_1.authorize)(shared_config_1.PERMISSIONS.FAMILY_CREATE
 });
 router.put('/:id', (0, auth_1.authorize)(shared_config_1.PERMISSIONS.FAMILY_UPDATE), async (req, res, next) => {
     try {
-        const family = await Family_1.Family.findOneAndUpdate({ _id: req.params.id, tenantId: req.user.tenantId }, { $set: req.body }, { new: true });
+        const body = { ...req.body };
+        if (body.recurringDonationType !== undefined || body.recurringPaymentDay !== undefined || body.recurringPaymentMonth !== undefined) {
+            body.nextPaymentDueDate = calculateNextDueDate(body.recurringDonationType, body.recurringPaymentDay, body.recurringPaymentMonth, body.lastPaymentDate);
+        }
+        const family = await Family_1.Family.findOneAndUpdate({ _id: req.params.id, tenantId: req.user.tenantId }, { $set: body }, { new: true });
         if (!family)
             throw new errorHandler_1.AppError('Family not found', 404);
         res.json({ success: true, data: family });
@@ -122,9 +172,6 @@ router.post('/:id/remind-recurring', (0, auth_1.authorize)(shared_config_1.PERMI
         if (!family.headMemberId) {
             throw new errorHandler_1.AppError('Family has no head member assigned to receive the alert', 400);
         }
-        if (!family.outstandingBalance || family.outstandingBalance <= 0) {
-            throw new errorHandler_1.AppError('Family has no outstanding balance', 400);
-        }
         const { User } = await Promise.resolve().then(() => __importStar(require('../models/User')));
         const headUser = await User.findOne({ memberId: family.headMemberId, tenantId: family.tenantId });
         if (!headUser) {
@@ -132,12 +179,14 @@ router.post('/:id/remind-recurring', (0, auth_1.authorize)(shared_config_1.PERMI
         }
         const { Notification } = await Promise.resolve().then(() => __importStar(require('../models/Notification')));
         const { NotificationChannel } = await Promise.resolve().then(() => __importStar(require('@mahallu/shared-types')));
+        const amountStr = family.recurringDonationAmount ? `₹${family.recurringDonationAmount}` : '';
+        const typeStr = family.recurringDonationType ? `(${family.recurringDonationType})` : '';
         await Notification.create({
             tenantId: family.tenantId,
             channel: NotificationChannel.IN_APP,
             recipientId: headUser._id,
-            title: 'Reminder: Recurring Due Pending',
-            body: `Reminder: Your family has an outstanding balance of ${family.outstandingBalance}. Please clear your dues at your earliest convenience.`,
+            title: 'Reminder: Recurring Donation Due',
+            body: `Reminder: Your family recurring donation ${amountStr} ${typeStr} is due soon. Please clear your dues at your earliest convenience.`,
             status: 'pending',
         });
         res.json({ success: true, message: 'Reminder sent successfully' });

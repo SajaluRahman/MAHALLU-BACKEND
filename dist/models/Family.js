@@ -63,6 +63,10 @@ const FamilySchema = new mongoose_1.Schema({
     photo: { url: String, publicId: String },
     recurringDonationType: { type: String, enum: ['monthly', 'yearly', 'none'], default: 'none' },
     recurringDonationAmount: { type: Number, default: 0 },
+    recurringPaymentDay: { type: Number, default: 1, min: 1, max: 31 },
+    recurringPaymentMonth: { type: Number, default: 1, min: 1, max: 12 },
+    nextPaymentDueDate: Date,
+    lastPaymentDate: Date,
     isDeleted: { type: Boolean, default: false },
     deletedAt: Date,
 }, { timestamps: true, toJSON: { virtuals: true } });
