@@ -11328,3 +11328,74 @@ Use mongoose.model(name, schema)
 2026-07-21 20:29:47 [info]: 🚀 Mahallu ERP Backend running on port 5000
 2026-07-21 20:29:47 [info]: 📡 Environment: undefined
 2026-07-21 20:29:47 [info]: 🌐 API Base: http://0.0.0.0:5000/api/v1
+2026-07-21 20:32:18 [info]: ✅ MongoDB connected: localhost
+2026-07-21 20:32:18 [error]: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 20:32:19 [warn]: Redis reconnecting...
+2026-07-21 20:32:19 [error]: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 20:32:19 [warn]: Redis reconnecting...
+2026-07-21 20:32:19 [error]: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 20:32:20 [warn]: Redis reconnecting...
+2026-07-21 20:32:20 [error]: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 20:32:20 [warn]: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 20:32:20 [info]: ✅ Cron jobs initialized
+2026-07-21 20:32:20 [info]: 🚀 Mahallu ERP Backend running on port 5000
+2026-07-21 20:32:20 [info]: 📡 Environment: undefined
+2026-07-21 20:32:20 [info]: 🌐 API Base: http://0.0.0.0:5000/api/v1
+2026-07-21 20:32:52 [info]: ✅ MongoDB connected: localhost
+2026-07-21 20:32:52 [error]: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 20:32:52 [warn]: Redis reconnecting...
+2026-07-21 20:32:52 [error]: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 20:32:53 [warn]: Redis reconnecting...
+2026-07-21 20:32:53 [error]: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 20:32:53 [warn]: Redis reconnecting...
+2026-07-21 20:32:53 [error]: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 20:32:53 [warn]: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 20:32:53 [info]: ✅ Cron jobs initialized
+2026-07-21 20:32:53 [error]: Error: listen EADDRINUSE: address already in use 0.0.0.0:5000
+    at Server.setupListenHandle [as _listen2] (node:net:1941:16)
+    at listenInCluster (node:net:1998:12)
+    at node:net:2207:7
+    at process.processTicksAndRejections (node:internal/process/task_queues:89:21)
+2026-07-21 20:34:55 [info]: ✅ MongoDB connected: localhost
+2026-07-21 20:34:55 [error]: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 20:34:56 [warn]: Redis reconnecting...
+2026-07-21 20:34:56 [error]: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 20:34:57 [warn]: Redis reconnecting...
+2026-07-21 20:34:57 [error]: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 20:34:57 [warn]: Redis reconnecting...
+2026-07-21 20:34:57 [error]: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 20:34:57 [warn]: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1135:18)
+    at afterConnectMultiple (node:net:1716:7)
+2026-07-21 20:34:57 [info]: ✅ Cron jobs initialized
+2026-07-21 20:34:57 [info]: 🚀 Mahallu ERP Backend running on port 5000
+2026-07-21 20:34:57 [info]: 📡 Environment: undefined
+2026-07-21 20:34:57 [info]: 🌐 API Base: http://0.0.0.0:5000/api/v1
