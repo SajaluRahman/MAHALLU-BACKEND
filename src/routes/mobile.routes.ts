@@ -954,7 +954,7 @@ router.post('/certificates/request', async (req: AuthRequest, res, next) => {
     const user = await User.findById(req.user!.userId).lean();
     if (!user || !user.memberId) return res.status(403).json({ success: false, message: 'Member profile required' });
 
-    const { type, purpose } = req.body;
+    const { type, purpose, details } = req.body;
     if (!type || !purpose) return res.status(400).json({ success: false, message: 'Type and purpose are required' });
 
     const certReq = await CertificateRequest.create({
@@ -962,6 +962,7 @@ router.post('/certificates/request', async (req: AuthRequest, res, next) => {
       requestedBy: user.memberId,
       type,
       purpose,
+      details: details || {},
       status: 'PENDING'
     });
 

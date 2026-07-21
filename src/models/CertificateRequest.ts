@@ -6,6 +6,7 @@ export interface CertificateRequestDocument extends Document {
   requestedBy: mongoose.Types.ObjectId;
   type: CertificateType;
   purpose: string;
+  details?: Record<string, any>;
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
   certificateId?: mongoose.Types.ObjectId;
   notes?: string;
@@ -19,6 +20,7 @@ const CertificateRequestSchema = new Schema<CertificateRequestDocument>(
     requestedBy: { type: Schema.Types.ObjectId, ref: 'Member', required: true },
     type: { type: String, enum: Object.values(CertificateType), required: true },
     purpose: { type: String, required: true },
+    details: { type: Schema.Types.Mixed, default: {} },
     status: { type: String, enum: ['PENDING', 'APPROVED', 'REJECTED'], default: 'PENDING' },
     certificateId: { type: Schema.Types.ObjectId, ref: 'Certificate' },
     notes: { type: String },

@@ -56,6 +56,13 @@ export enum CertificateType {
   COMPLETION = 'completion',
   TRANSFER = 'transfer',
   DEATH = 'death',
+  MARRIAGE_CERTIFICATE = 'marriage_certificate',
+  MARRIAGE_CLEARANCE = 'marriage_clearance',
+  PANCHAYATH_LETTER = 'panchayath_letter',
+  VILLAGE_LETTER = 'village_letter',
+  OTHER_ORG_LETTER = 'other_org_letter',
+  CASTE_CERTIFICATE = 'caste_certificate',
+  NOC = 'noc',
 }
 
 export enum NotificationChannel {

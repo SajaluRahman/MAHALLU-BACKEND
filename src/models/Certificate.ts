@@ -12,6 +12,15 @@ export interface CertificateDocument extends Document {
   pdfUrl?: string;
   publicId?: string;
   data: Record<string, unknown>;
+  eSign?: {
+    isSigned: boolean;
+    signedBy?: string;
+    designation?: string;
+  };
+  eStamp?: {
+    isStamped: boolean;
+    sealTitle?: string;
+  };
   isRevoked: boolean;
 }
 
@@ -27,6 +36,15 @@ const CertificateSchema = new Schema<CertificateDocument>(
     pdfUrl: String,
     publicId: String,
     data: { type: Schema.Types.Mixed, default: {} },
+    eSign: {
+      isSigned: { type: Boolean, default: true },
+      signedBy: { type: String, default: 'Secretary, Mahallu Committee' },
+      designation: { type: String, default: 'Authorized Signatory' },
+    },
+    eStamp: {
+      isStamped: { type: Boolean, default: true },
+      sealTitle: { type: String, default: 'Official Seal of Mahallu' },
+    },
     isRevoked: { type: Boolean, default: false },
   },
   { timestamps: true },
