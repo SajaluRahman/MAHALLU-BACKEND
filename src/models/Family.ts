@@ -28,7 +28,7 @@ const FamilySchema = new Schema<FamilyDocument>(
   {
     tenantId: { type: Schema.Types.ObjectId, ref: 'Tenant', required: true },
     familyCode: { type: String, required: true, trim: true },
-    headMemberId: { type: Schema.Types.ObjectId, ref: 'Member', required: true },
+    headMemberId: { type: Schema.Types.ObjectId, ref: 'Member', required: false },
     members: [{
       memberId: { type: Schema.Types.ObjectId, ref: 'Member', required: true },
       relationship: { type: String, required: true },

@@ -38,7 +38,7 @@ const mongoose_1 = __importStar(require("mongoose"));
 const FamilySchema = new mongoose_1.Schema({
     tenantId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Tenant', required: true },
     familyCode: { type: String, required: true, trim: true },
-    headMemberId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Member', required: true },
+    headMemberId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Member', required: false },
     members: [{
             memberId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Member', required: true },
             relationship: { type: String, required: true },

@@ -239,11 +239,11 @@ export class ImportExportController {
               relationship: relationship || 'member',
               isHead,
             });
-            if (isHead) {
-              family.headMemberId = member._id;
-            }
-            await family.save();
           }
+          if (isHead || !family.headMemberId) {
+            family.headMemberId = member._id;
+          }
+          await family.save();
 
           // Create User login account if Family Email & Password are provided
           if (familyEmail && familyPassword) {
