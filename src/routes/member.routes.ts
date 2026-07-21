@@ -1,12 +1,23 @@
 import { Router } from 'express';
+import multer from 'multer';
 import { MemberController } from '../controllers/member.controller';
+import { ImportExportController } from '../controllers/importExport.controller';
 import { authenticate, authorize } from '../middleware/auth';
 import { PERMISSIONS } from '@mahallu/shared-config';
 import { auditLog } from '../middleware/requestLogger';
 
+const upload = multer({ storage: multer.memoryStorage() });
 const router = Router();
+
 router.use(authenticate);
 
+// Import & Export Routes
+router.get('/import-export/template', authorize(PERMISSIONS.MEMBER_VIEW), ImportExportController.downloadTemplate);
+router.post('/import-export/import', authorize(PERMISSIONS.MEMBER_CREATE), upload.single('file'), ImportExportController.importData);
+router.get('/import-export/export', authorize(PERMISSIONS.MEMBER_EXPORT || PERMISSIONS.MEMBER_VIEW), ImportExportController.exportData);
+router.get('/import-export/history', authorize(PERMISSIONS.MEMBER_VIEW), ImportExportController.getHistory);
+
+// Member Routes
 router.get('/stats', authorize(PERMISSIONS.MEMBER_VIEW), MemberController.getStats);
 router.get('/search', authorize(PERMISSIONS.MEMBER_VIEW), MemberController.search);
 router.get('/', authorize(PERMISSIONS.MEMBER_VIEW), MemberController.getAll);

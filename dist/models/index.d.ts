@@ -27,4 +27,5 @@ export { Survey } from './Survey';
 export { Receipt } from './Receipt';
 export { Settings } from './Settings';
 export { RegistrationRequest } from './RegistrationRequest';
+export { ImportExportLog } from './ImportExportLog';
 //# sourceMappingURL=index.d.ts.map

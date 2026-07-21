@@ -1,0 +1,388 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ImportExportController = void 0;
+const exceljs_1 = __importDefault(require("exceljs"));
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const models_1 = require("../models");
+const shared_types_1 = require("@mahallu/shared-types");
+class ImportExportController {
+    /**
+     * Download Demo Excel Template for importing Families and Members
+     */
+    static async downloadTemplate(req, res) {
+        try {
+            const workbook = new exceljs_1.default.Workbook();
+            const sheet = workbook.addWorksheet('Family & Member Import');
+            // Title & Instructions Row
+            sheet.addRow(['MAHALLU ERP - FAMILY & MEMBERS IMPORT TEMPLATE']);
+            sheet.addRow(['Fill in family and member details below. Required fields are marked with (*).']);
+            sheet.addRow([]); // Blank row
+            // Header Columns
+            const headers = [
+                'Mahallu Code',
+                'Family Code / House Name*',
+                'Address Line*',
+                'Ward No',
+                'Family Email (Login)',
+                'Family Password (Login)',
+                'Member Name*',
+                'Gender (male/female)*',
+                'DOB (YYYY-MM-DD)',
+                'Phone*',
+                'Relationship (head/spouse/child/parent)*',
+                'Occupation',
+                'Aadhaar Number',
+            ];
+            const headerRow = sheet.addRow(headers);
+            // Styling Header Row
+            headerRow.eachCell((cell) => {
+                cell.font = { bold: true, color: { argb: 'FFFFFF' } };
+                cell.fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: '1E40AF' }, // Dark Blue
+                };
+                cell.alignment = { vertical: 'middle', horizontal: 'center' };
+            });
+            // Sample Demo Data Rows
+            sheet.addRow([
+                'MH001',
+                'FAM-101 (Baitul Noor)',
+                'Near Juma Masjid, Ward 4',
+                '04',
+                'ahmed.family@mahallu.app',
+                'Pass1234',
+                'Ahmed K',
+                'male',
+                '1985-05-12',
+                '9876543210',
+                'head',
+                'Business',
+                '123456789012',
+            ]);
+            sheet.addRow([
+                'MH001',
+                'FAM-101 (Baitul Noor)',
+                'Near Juma Masjid, Ward 4',
+                '04',
+                'ahmed.family@mahallu.app',
+                'Pass1234',
+                'Fatima Ahmed',
+                'female',
+                '1988-08-20',
+                '9876543211',
+                'spouse',
+                'Homemaker',
+                '123456789013',
+            ]);
+            sheet.addRow([
+                'MH001',
+                'FAM-101 (Baitul Noor)',
+                'Near Juma Masjid, Ward 4',
+                '04',
+                'ahmed.family@mahallu.app',
+                'Pass1234',
+                'Zayd Ahmed',
+                'male',
+                '2012-03-15',
+                '9876543212',
+                'child',
+                'Student',
+                '123456789014',
+            ]);
+            // Auto width columns
+            sheet.columns.forEach((column) => {
+                column.width = 24;
+            });
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            res.setHeader('Content-Disposition', 'attachment; filename="Demo_Import_Template_Families_Members.xlsx"');
+            await workbook.xlsx.write(res);
+            res.end();
+        }
+        catch (error) {
+            console.error('Error generating import template:', error);
+            res.status(500).json({ success: false, message: 'Failed to generate import template' });
+        }
+    }
+    /**
+     * Bulk Import Families and Members from Excel / CSV
+     */
+    static async importData(req, res) {
+        try {
+            if (!req.file) {
+                return res.status(400).json({ success: false, message: 'No spreadsheet file uploaded' });
+            }
+            const tenantId = req.user.tenantId;
+            const workbook = new exceljs_1.default.Workbook();
+            await workbook.xlsx.load(req.file.buffer);
+            const sheet = workbook.worksheets[0];
+            if (!sheet) {
+                return res.status(400).json({ success: false, message: 'Excel file is empty' });
+            }
+            let totalRecords = 0;
+            let successCount = 0;
+            let failedCount = 0;
+            const errorDetails = [];
+            // Maps familyCode -> Family Mongo Document
+            const familyMap = new Map();
+            // Read rows starting after header
+            let startRowIndex = 5;
+            sheet.eachRow((row, rowNumber) => {
+                const firstVal = String(row.getCell(2).value || '').trim();
+                if (firstVal.includes('Family Code')) {
+                    startRowIndex = rowNumber + 1;
+                }
+            });
+            const rowList = [];
+            sheet.eachRow((row, rowNumber) => {
+                if (rowNumber >= startRowIndex) {
+                    rowList.push({ row, rowNumber });
+                }
+            });
+            for (const item of rowList) {
+                const { row, rowNumber } = item;
+                const mahalluCode = String(row.getCell(1).value || '').trim();
+                const familyCode = String(row.getCell(2).value || '').trim();
+                const addressLine = String(row.getCell(3).value || '').trim();
+                const wardNo = String(row.getCell(4).value || '').trim();
+                const familyEmail = String(row.getCell(5).value || '').trim().toLowerCase();
+                const familyPassword = String(row.getCell(6).value || '').trim();
+                const memberName = String(row.getCell(7).value || '').trim();
+                const gender = String(row.getCell(8).value || '').trim().toLowerCase();
+                const dob = String(row.getCell(9).value || '').trim();
+                const phone = String(row.getCell(10).value || '').trim();
+                const relationship = String(row.getCell(11).value || '').trim().toLowerCase();
+                const occupation = String(row.getCell(12).value || '').trim();
+                const aadhaar = String(row.getCell(13).value || '').trim();
+                // Skip empty rows
+                if (!familyCode && !memberName)
+                    continue;
+                totalRecords++;
+                // Basic Row Validation
+                if (!familyCode || !addressLine || !memberName || !gender || !phone) {
+                    failedCount++;
+                    errorDetails.push({
+                        row: rowNumber,
+                        message: `Missing required fields (Family Code, Address, Member Name, Gender, or Phone required)`,
+                    });
+                    continue;
+                }
+                try {
+                    // Find or create Family
+                    let family = familyMap.get(familyCode);
+                    if (!family) {
+                        family = await models_1.Family.findOne({ tenantId, familyCode });
+                        if (!family) {
+                            family = await models_1.Family.create({
+                                tenantId,
+                                familyCode,
+                                address: {
+                                    line1: addressLine,
+                                    city: 'Mahallu City',
+                                    district: 'State',
+                                    state: 'Kerala',
+                                    pincode: '670001',
+                                    country: 'India',
+                                },
+                                wardNo,
+                                members: [],
+                                outstandingBalance: 0,
+                                recurringDonationType: 'none',
+                                recurringDonationAmount: 0,
+                            });
+                        }
+                        familyMap.set(familyCode, family);
+                    }
+                    // Check if Member already exists by phone & tenantId
+                    let member = await models_1.Member.findOne({ tenantId, phone, name: memberName });
+                    const isHead = relationship === 'head' || relationship === 'head of family' || family.members.length === 0;
+                    if (!member) {
+                        member = await models_1.Member.create({
+                            tenantId,
+                            memberId: `M-${Date.now().toString().slice(-6)}${Math.floor(Math.random() * 100)}`,
+                            name: memberName,
+                            gender: gender === 'female' ? shared_types_1.Gender.FEMALE : shared_types_1.Gender.MALE,
+                            phone,
+                            occupation,
+                            aadhaarNumber: aadhaar,
+                            familyId: family._id,
+                            relationship: relationship || 'member',
+                            status: shared_types_1.MemberStatus.ACTIVE,
+                        });
+                    }
+                    // Attach member to Family if not present
+                    const existingRef = family.members.find((m) => String(m.memberId) === String(member._id));
+                    if (!existingRef) {
+                        family.members.push({
+                            memberId: member._id,
+                            relationship: relationship || 'member',
+                            isHead,
+                        });
+                        if (isHead) {
+                            family.headMemberId = member._id;
+                        }
+                        await family.save();
+                    }
+                    // Create User login account if Family Email & Password are provided
+                    if (familyEmail && familyPassword) {
+                        let user = await models_1.User.findOne({ tenantId, email: familyEmail });
+                        if (!user) {
+                            const hashedPassword = await bcryptjs_1.default.hash(familyPassword, 10);
+                            user = await models_1.User.create({
+                                tenantId,
+                                email: familyEmail,
+                                phone,
+                                name: memberName,
+                                password: hashedPassword,
+                                role: shared_types_1.UserRole.PARENT,
+                                memberId: member._id,
+                                isEmailVerified: true,
+                                isPhoneVerified: true,
+                                status: 'active',
+                            });
+                            member.userId = user._id;
+                            await member.save();
+                        }
+                    }
+                    successCount++;
+                }
+                catch (err) {
+                    failedCount++;
+                    errorDetails.push({
+                        row: rowNumber,
+                        message: err.message || 'Error processing row',
+                    });
+                }
+            }
+            // Save Import Log
+            const log = await models_1.ImportExportLog.create({
+                tenantId,
+                type: 'IMPORT',
+                entity: 'FAMILIES_MEMBERS',
+                fileName: req.file.originalname,
+                status: failedCount === 0 ? 'COMPLETED' : 'COMPLETED',
+                totalRecords,
+                successCount,
+                failedCount,
+                errorDetails,
+                performedBy: req.user?.name || 'Admin',
+            });
+            return res.status(200).json({
+                success: true,
+                message: `Import processed: ${successCount} succeeded, ${failedCount} failed`,
+                data: {
+                    logId: log._id,
+                    totalRecords,
+                    successCount,
+                    failedCount,
+                    errorDetails,
+                },
+            });
+        }
+        catch (error) {
+            console.error('Error importing families/members:', error);
+            return res.status(500).json({ success: false, message: error.message || 'Failed to process import' });
+        }
+    }
+    /**
+     * Export All Families & Members as Excel Workbook
+     */
+    static async exportData(req, res) {
+        try {
+            const tenantId = req.user.tenantId;
+            const tenant = await models_1.Tenant.findById(tenantId);
+            const families = await models_1.Family.find({ tenantId }).populate('members.memberId');
+            const members = await models_1.Member.find({ tenantId });
+            const workbook = new exceljs_1.default.Workbook();
+            const sheet = workbook.addWorksheet('Exported Families & Members');
+            // Title Row
+            sheet.addRow([`MAHALLU ERP - EXPORTED FAMILIES & MEMBERS (${tenant?.name || 'Mahallu'})`]);
+            sheet.addRow([`Export Date: ${new Date().toLocaleDateString()} | Total Families: ${families.length} | Total Members: ${members.length}`]);
+            sheet.addRow([]);
+            // Headers
+            const headers = [
+                'Family Code',
+                'Ward No',
+                'Address Line 1',
+                'City',
+                'Member Name',
+                'Gender',
+                'Phone',
+                'Relationship to Head',
+                'Occupation',
+                'Aadhaar Number',
+                'Member Status',
+            ];
+            const headerRow = sheet.addRow(headers);
+            headerRow.eachCell((cell) => {
+                cell.font = { bold: true, color: { argb: 'FFFFFF' } };
+                cell.fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: '10B981' }, // Emerald Green
+                };
+                cell.alignment = { vertical: 'middle', horizontal: 'center' };
+            });
+            let totalExported = 0;
+            members.forEach((m) => {
+                const family = families.find((f) => String(f._id) === String(m.familyId));
+                sheet.addRow([
+                    family?.familyCode || 'N/A',
+                    family?.wardNo || 'N/A',
+                    family?.address?.line1 || 'N/A',
+                    family?.address?.city || 'N/A',
+                    m.name,
+                    m.gender,
+                    m.phone,
+                    m.relationship || 'member',
+                    m.occupation || '',
+                    m.aadhaarNumber || '',
+                    m.status,
+                ]);
+                totalExported++;
+            });
+            sheet.columns.forEach((col) => {
+                col.width = 22;
+            });
+            // Save Export Log
+            await models_1.ImportExportLog.create({
+                tenantId,
+                type: 'EXPORT',
+                entity: 'FAMILIES_MEMBERS',
+                fileName: `Export_Families_Members_${Date.now()}.xlsx`,
+                status: 'COMPLETED',
+                totalRecords: totalExported,
+                successCount: totalExported,
+                failedCount: 0,
+                errorDetails: [],
+                performedBy: req.user?.name || 'Admin',
+            });
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            res.setHeader('Content-Disposition', `attachment; filename="Export_Families_Members_${Date.now()}.xlsx"`);
+            await workbook.xlsx.write(res);
+            res.end();
+        }
+        catch (error) {
+            console.error('Error exporting data:', error);
+            res.status(500).json({ success: false, message: 'Failed to export families and members' });
+        }
+    }
+    /**
+     * Get Import & Export History Logs
+     */
+    static async getHistory(req, res) {
+        try {
+            const logs = await models_1.ImportExportLog.find({ tenantId: req.user.tenantId }).sort({ createdAt: -1 }).limit(50);
+            res.status(200).json({ success: true, data: logs });
+        }
+        catch (error) {
+            console.error('Error fetching import export history:', error);
+            res.status(500).json({ success: false, message: 'Failed to fetch history logs' });
+        }
+    }
+}
+exports.ImportExportController = ImportExportController;
+//# sourceMappingURL=importExport.controller.js.map
